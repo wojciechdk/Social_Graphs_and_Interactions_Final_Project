@@ -33,16 +33,18 @@ g_wiki = create_graph_wiki(wiki_data, substance_names)
 g_reddit = create_graph_reddit(drug_database_reddit, wiki_data,
                                substance_names)
 
-#%% Plot Degree Distribution Wiki
-w.graph.plot_degree_distribution_summary(g_wiki,
-                                         title='Wikipedia',
-                                         title_y_position=0.985,
-                                         x_lim_lin=(-2, 200))
+#%% Plot degree distribution
+graphs_to_show = [g_reddit, g_wiki, w.graph.erdos_renyi_like(g_reddit)]
+graph_names = ['Reddit', 'Wiki', 'Random like Reddit']
+graph_colors = ['red', 'blue', 'green']
 
-#%% Plot Degree Distribution Reddit
-w.graph.plot_degree_distribution_summary(g_reddit,
-                                         title='Reddit',
-                                         x_lim_lin=(-2, 200))
+w.graph.plot_degree_distribution_summary(graphs_to_show,
+                                         graph_names=graph_names,
+                                         graph_colors=graph_colors,
+                                         x_lim_lin=(-2, 100),
+                                         x_lim_log=(0.9, 1000)
+                                         )
+
 
 # %% Most central nodes Wiki
 for centrality in ['degree', 'in-degree', 'out-degree', 'betweenness',
@@ -75,87 +77,4 @@ plt.show()
 #                             key=itemgetter(1),
 #                             reverse=True)
 
-#%% Compare degree dist
-Gs = [g_wiki, g_reddit]
-G_names = ['Wikipedia', 'Reddit']
-G_colors = ['Blue', 'Red']
-direction = None
 
-figure, axes_all = plt.subplots(1, 2,
-                                sharex='col', sharey='col',
-                                figsize=(12, 5))
-
-# Initialize min and max founders
-max_y_data = 0
-max_y_data_without_0_degree = 0
-min_y_data_without_0_degree = 1
-
-
-def format_axes(axes):
-    axes.spines['top'].set_color('white')
-    axes.spines['right'].set_color('white')
-    axes.xaxis.grid(which="both", linewidth=0.5)
-    axes.yaxis.grid(which="both", linewidth=0.5)
-    axes.xaxis.label.set_fontsize(12)
-    axes.yaxis.label.set_fontsize(12)
-    axes.title.set_fontsize(14)
-
-
-# Lin-lin axes
-axes = axes_all[0]
-for G, G_name, G_color in zip(Gs, G_names, G_colors):
-    _, (degrees, distribution) = w.graph.plot_degree_distribution(
-        G,
-        direction=direction,
-        axis_scaling='lin-lin',
-        plot_type='scatter',
-        as_probability_distribution=True,
-        color=G_color,
-        marker_size=40,
-        label=G_name,
-        axes=axes,
-        annotate=['x_label', 'y_label']
-    )
-
-    format_axes(axes)
-
-    max_y_data = np.max((np.max(distribution), max_y_data))
-    max_y_data_without_0_degree = np.max((np.max(distribution[1:]),
-                                          max_y_data_without_0_degree))
-    min_y_data_nonzero = np.min((np.min(distribution[distribution != 0]),
-                                 min_y_data_without_0_degree))
-
-axes.legend(G_names)
-axes.set_ylim((0, max_y_data + 0.05))
-axes.set_xlim((-2, 100))
-
-# Log-log axes
-legend_log_log = list()
-axes = axes_all[1]
-for G, G_name, G_color in zip(Gs, G_names, G_colors):
-    w.graph.plot_degree_distribution(
-        G,
-        direction=direction,
-        axis_scaling='log-log',
-        plot_type='scatter',
-        as_probability_distribution=True,
-        color=G_color,
-        marker_size=40,
-        label=G_name,
-        axes=axes,
-        annotate=['x_label']
-    )
-
-    # Power-law slope
-    alpha = powerlaw.Fit(w.graph.degrees(G, direction=direction)).alpha
-    legend_log_log.append(fr'{G_name}, $\alpha$ = {alpha:.2f}')
-
-format_axes(axes)
-axes.legend(legend_log_log)
-
-axes.set_ylim((
-    np.power(10, np.floor(np.log10(min_y_data_nonzero))),
-    np.power(10, np.ceil(np.log10(max_y_data_without_0_degree)))
-))
-
-plt.show()
