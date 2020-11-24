@@ -109,7 +109,7 @@ def process_tree(root_name: str, root_node: Dict, current_dir: Path, redirects: 
 redirects = {}
 
 
-data_path = Path.cwd().joinpath("full_wiki_data")
+data_path = Path.cwd().joinpath("private_data/full_wiki_data")
 if not data_path.exists():
     os.mkdir(data_path)
 
@@ -119,8 +119,24 @@ content_tree = process_tree(root_name="custom_root",
                             current_dir=data_path,
                             redirects = redirects)
 
+# %% 
+
+# Clean some pages that were overlooked
+
+del content_tree["Antidepressant"]
+del content_tree["Reversible inhibitor of monoamine oxidase A"]
+del content_tree["Stimulant"]
+del content_tree["Anxiolytic"]
+del content_tree["Histone deacetylase inhibitor"]
+del content_tree["Norepinephrine–dopamine disinhibitor"]
+del content_tree["Norepinephrine–dopamine reuptake inhibitor"]
+del content_tree["Monoamine oxidase inhibitor"]
+del content_tree["Tricyclic antidepressant"]
+
 
 # %%
 full_wiki_data_path = Path.cwd() / "shared_data" / "full_wiki_data.json"
 with open(full_wiki_data_path, "w+") as f:
     json.dump(content_tree, f, indent=2)
+
+# %%
