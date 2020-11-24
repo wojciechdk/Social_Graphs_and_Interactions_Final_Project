@@ -6,8 +6,11 @@ from networkx.generators import line
 import plotly.graph_objects as go
 import networkx as nx
 import json
-from config import Config
-
+try:
+    from config import Config
+except:
+    from project.config import Config
+    
 G = nx.random_geometric_graph(200, 0.125)
 # %%
 with open(Config.Path.contents_per_substance, "r+") as f:
