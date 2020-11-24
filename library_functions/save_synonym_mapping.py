@@ -29,3 +29,11 @@ def save_substance_names(wiki_data):
     """
     with open(Config.Path.substance_names, "w+") as f:
         json.dump(wiki_data["name"], f, indent=2)
+
+def save_contents(wiki_data):
+    with open(Config.Path.contents_per_substance, "w+") as f:
+        json.dump(dict(zip(wiki_data["name"], wiki_data["content"])), f)
+
+def save_urls(wiki_data):
+    with open(Config.Path.urls_per_substance, "w+") as f:
+        json.dump(dict(zip(wiki_data["name"], wiki_data["url"])), f)

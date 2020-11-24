@@ -26,7 +26,11 @@ class Config:
         substance_names = shared_data_folder / 'substance_names.json'
         synonym_mapping = shared_data_folder / 'synonym_mapping.json'
 
+        contents_per_substance = shared_data_folder / "contents_per_substance.json"
+        urls_per_substance = shared_data_folder / "urls_per_substance.json"
 
+        posts_per_substance = shared_data_folder / "posts_per_substance.json"
+        posts_per_link = shared_data_folder / "posts_per_link.json"
         # Wiki data:
         wiki_data_folder = shared_data_folder / 'wikipedia_data'
 
