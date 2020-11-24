@@ -65,14 +65,6 @@ submission_doc_generator = get_submission_doc_generator(submission_generator)
 
 
 # %%
-test_text = """
-HGH increase from alpha-GPC (even high doses) is pretty mild, almost negligible actually. Alpha GPC can create an acute spike in HGH production but the pulse fades out quickly.
-Caffeine.
-Whole day HGH production will basically be similar with or without Alpha GPC (even with a high dose).
-
-HGH is a hormone that's pretty much impossible to tweak with supplements only. HGH secretagogues peptides are the way to go if you want to consistently increase your growth hormone levels.
-"""
-# %%
 match_generator = ((matcher(text),submission, path) for text,submission,path in submission_doc_generator)
 # %%
 
