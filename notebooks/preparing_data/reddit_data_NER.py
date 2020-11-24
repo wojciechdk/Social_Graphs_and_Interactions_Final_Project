@@ -2,6 +2,7 @@
 # 
 import spacy
 import json
+from config import Config
 from tqdm.auto import tqdm
 from spacy.matcher import PhraseMatcher
 from pathlib import Path
@@ -11,10 +12,10 @@ nlp = spacy.load('en_core_web_sm')
 matcher = PhraseMatcher(nlp.vocab, attr="LOWER", validate=True)
 # %%
 # Load the list of synonyms  and titles from file
-with open("./synonym_mapping.json") as f:
+with open(Config.Path.synonym_mapping) as f:
     synonyms = json.load(f)
 
-with open("./substance_names.json") as f:
+with open(Config.Path.substance_names) as f:
     names = json.load(f)
 
 # %%
@@ -33,29 +34,12 @@ for name in tqdm(names):
 
 for word in tqdm(words_to_patterns):
     matcher.add(word, words_to_patterns[word])
-# %%
 
 
-with open("reddit_data/submissions/1a0e88.json") as f:
-    test_post = json.load(f)
-# %%
-
-
-submissions_path = Path().cwd() / "reddit_data" / "submissions"
+submissions_path = Path().cwd() / "private_data" / "reddit_data" / "submissions"
 # %%
 
 submission_files = list(submissions_path.glob("**/*"))
-# %%
-with open("/home/ldorigo/MEGA/DTU/Q2/social_graphs/Social_Graphs_Exercises/project/project_a/reddit_data/submissions/2m0jyv.json", "r") as f:
-    test_file = json.load(f)
-# %%
-test_file
-# %%
-test_text= nlp(test_file["content"])
-# %%
-test_text
-# %%
-matcher(test_text)
 
 # %%
 def get_submissions_generator(submission_files):
