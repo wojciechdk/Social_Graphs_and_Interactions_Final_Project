@@ -132,7 +132,7 @@ del content_tree["Norepinephrine–dopamine disinhibitor"]
 del content_tree["Norepinephrine–dopamine reuptake inhibitor"]
 del content_tree["Monoamine oxidase inhibitor"]
 del content_tree["Heterocyclic antidepressant"]
-# del content_tree["Tricyclic antidepressant"]
+del content_tree["Tricyclic antidepressant"]
 # del content_tree["Tricyclic antidepressant"]
 # del content_tree["Tricyclic antidepressant"]
 
