@@ -1,3 +1,5 @@
+# %%
+
 import json
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -16,7 +18,8 @@ from library_functions.load_data_reddit import load_data_reddit
 from library_functions.load_data_wiki import load_data_wiki
 from library_functions.load_substance_names import load_substance_names
 from library_functions.save_synonym_mapping import save_synonym_mapping
-
+import library_functions.plotly_draw
+from config import Config
 
 #%% Load substance names
 substance_names = load_substance_names()
@@ -78,3 +81,22 @@ plt.show()
 #                             reverse=True)
 
 
+# %%
+
+# Save graphs to pickle
+
+nx.readwrite.gpickle.write_gpickle(g_reddit, Config.Path.reddit_graph)
+nx.readwrite.gpickle.write_gpickle(g_wiki, Config.Path.wiki_digraph)
+# %%
+
+# Let's look at the GCC's and undirected graphs for the following.
+
+gcc_wiki_dir = w.graph.largest_connected_component(g_wiki)
+gcc_reddit = w.graph.largest_connected_component(g_reddit)
+# %%
+
+gcc_wiki = gcc_wiki_dir.to_undirected()
+
+
+nx.readwrite.gpickle.write_gpickle(gcc_reddit, Config.Path.reddit_gcc)
+nx.readwrite.gpickle.write_gpickle(gcc_wiki, Config.Path.wiki_gcc)
