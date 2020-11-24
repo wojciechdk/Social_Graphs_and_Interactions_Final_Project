@@ -100,3 +100,6 @@ gcc_wiki = gcc_wiki_dir.to_undirected()
 
 nx.readwrite.gpickle.write_gpickle(gcc_reddit, Config.Path.reddit_gcc)
 nx.readwrite.gpickle.write_gpickle(gcc_wiki, Config.Path.wiki_gcc)
+# %%
+
+# %%
