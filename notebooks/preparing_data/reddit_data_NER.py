@@ -82,8 +82,22 @@ for matches,submission, path in match_generator:
 # %%
 # Save full reddit data to file:
 
-with open(Config.Path.reddit_data_with_NER, "w+") as f:
-    json.dump(submissions_dict, f)
+# with open(Config.Path.reddit_data_with_NER, "w+") as f:
+#     json.dump(submissions_dict, f)
+with open(Config.Path.reddit_data_with_NER, "r+") as f:
+    submissions_dict = json.load( f)
 
+# %%
+# Let's save a  mapping between substances and posts in which they appear
 
+posts_per_substance = {
+    substance: [] for substance in names 
+}
+
+for id in submissions_dict:
+    for substance in submissions_dict[id]["matches"]:
+        posts_per_substance[substance].append(id)
+# %%
+with open(Config.Path.posts_per_substance, "w+") as f:
+    json.dump(posts_per_substance, f)
 # %%
