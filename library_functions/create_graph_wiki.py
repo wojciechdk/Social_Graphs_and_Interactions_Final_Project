@@ -5,12 +5,16 @@ def create_graph_wiki(wiki_data, substance_names):
     g_wiki = nx.DiGraph()
     g_wiki.add_nodes_from(substance_names, categories=[])
 
-    # Assign categories from Wikipedia to drugs
+    # Assign categories from Wikipedia to drugs as well as text contents and url
     for index_drug, drug in enumerate(wiki_data['name']):
         if drug in g_wiki.nodes:
             g_wiki.nodes[drug]['categories'] = \
                 wiki_data['categories'][index_drug]
-
+            g_wiki.nodes[drug]['content'] = \
+                wiki_data['content']
+            g_wiki.nodes[drug]['url'] = \
+                wiki_data['url']
+    
     for index_drug, drug in enumerate(wiki_data['name']):
         if drug not in g_wiki.nodes:
             continue
