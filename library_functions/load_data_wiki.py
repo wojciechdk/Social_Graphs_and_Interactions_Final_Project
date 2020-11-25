@@ -1,4 +1,5 @@
 import json
+import library_functions as lf
 
 from config import Config
 from wojciech.lowercase import lowercase
@@ -29,5 +30,7 @@ def load_data_wiki():
         wiki_data['synonyms'].append(lowercase(data['redirects']))
 
         wiki_data['url'].append(data['url'])
+
+    lf.save_synonym_mapping(wiki_data)
 
     return wiki_data

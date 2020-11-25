@@ -1,4 +1,5 @@
 import json
+import library_functions as lf
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -6,33 +7,15 @@ import pandas as pd
 import powerlaw
 import wojciech as w
 
+from config import Config
 from fa2 import ForceAtlas2
 from operator import itemgetter
 from pandas_profiling import ProfileReport
 from pathlib import Path
-from library_functions.create_graph_reddit import create_graph_reddit
-from library_functions.create_graph_wiki import create_graph_wiki
-from library_functions.load_data_reddit import load_data_reddit
-from library_functions.load_data_wiki import load_data_wiki
-from library_functions.load_substance_names import load_substance_names
-from library_functions.save_synonym_mapping import save_synonym_mapping
-import library_functions.plotly_draw
-from config import Config
-
-#%% Load substance names
-substance_names = load_substance_names()
-
-#%% Load data
-wiki_data = load_data_wiki()
-drug_database_reddit = load_data_reddit()
-
-# %% Synonym Mapping
-save_synonym_mapping(wiki_data)
 
 # %% Create graphs
-g_wiki = create_graph_wiki(wiki_data, substance_names)
-g_reddit = create_graph_reddit(drug_database_reddit, wiki_data,
-                               substance_names)
+g_wiki = lf.create_graph_wiki()
+g_reddit = lf.create_graph_reddit()
 
 #%% Plot degree distribution summary
 graphs_to_show = [g_reddit, g_wiki, w.graph.erdos_renyi_like(g_reddit)]
@@ -59,7 +42,8 @@ for centrality in ['degree', 'betweenness', 'eigenvector']:
 
 # %% In vs out degree Wiki
 w.graph.plot_in_vs_out_degree(g_wiki,
-                              plot_type='scatter')
+                              plot_type='heatmap',
+                              colormap_norm='log')
 plt.show()
 
 #%% Force Atlas plot Wiki
@@ -82,14 +66,14 @@ plt.show()
 #%% Create alternative reddit graphs
 # Positive
 g_reddit_positive = g_reddit.copy()
-conditions_not_positive = {'polarity': lambda x: x < 0.3}
+conditions_not_positive = {'polarity': lambda x: x < 0.2}
 edges_not_positive = w.graph.get_edges_by_attribute(g_reddit_positive,
                                                     conditions_not_positive)
 g_reddit_positive.remove_edges_from(edges_not_positive)
 
 # Negative
 g_reddit_negative = g_reddit.copy()
-conditions_not_negative = {'polarity': lambda x: x > -0.3}
+conditions_not_negative = {'polarity': lambda x: x > -0.2}
 edges_not_negative = w.graph.get_edges_by_attribute(g_reddit_negative,
                                                     conditions_not_negative)
 g_reddit_negative.remove_edges_from(edges_not_negative)
@@ -107,9 +91,14 @@ w.graph.plot_degree_distribution_summary(graphs_to_show,
                                          x_lim_log=(0.9, 1000)
                                          )
 #%% Degree stats
-degree_stats_reddit = w.graph.degree_statistics(g_reddit)
-degree_stats_g_reddit_positive = w.graph.degree_statistics(g_reddit_positive)
-degree_stats_g_reddit_negative = w.graph.degree_statistics(g_reddit_negative)
+print('\nReddit:')
+degree_stats_reddit = w.graph.degree_statistics(g_reddit, printout=True)
+
+print('\nReddit Positive:')
+degree_stats_g_reddit_positive = w.graph.degree_statistics(g_reddit_positive, printout=True)
+
+print('\nReddit Negative:')
+degree_stats_g_reddit_negative = w.graph.degree_statistics(g_reddit_negative, printout=True)
 
 
 #%% Most central nodes in different Reddit Graphs

@@ -1,7 +1,11 @@
 import networkx as nx
+import library_functions as lf
 
 
-def create_graph_wiki(wiki_data, substance_names):
+def create_graph_wiki():
+    wiki_data = lf.load_data_wiki()
+    substance_names = lf.load_substance_names()
+
     g_wiki = nx.DiGraph()
     g_wiki.add_nodes_from(substance_names, categories=[])
 
