@@ -13,12 +13,15 @@ def create_graph_reddit(drug_database_reddit, wiki_data, substance_names):
 
     # Link drugs
     for reddit_post in drug_database_reddit.values():
-        link_drugs(g_reddit, reddit_post['matches'])
+        link_drugs(g_reddit,
+                   reddit_post['matches'],
+                   reddit_post['polarity'],
+                   reddit_post['subjectivity'])
 
     return g_reddit
 
 
-def link_drugs(G: nx.Graph, list_of_drugs):
+def link_drugs(G: nx.Graph, list_of_drugs, polarity, subjectivity):
     if len(list_of_drugs) <= 1:
         return G
     else:
@@ -28,4 +31,6 @@ def link_drugs(G: nx.Graph, list_of_drugs):
 
             for other_drug in other_drugs:
                 if (drug in G.nodes) & (other_drug in G.nodes):
-                    G.add_edge(drug, other_drug)
+                    G.add_edge(drug, other_drug,
+                               polarity=polarity,
+                               subjectivity=subjectivity)
