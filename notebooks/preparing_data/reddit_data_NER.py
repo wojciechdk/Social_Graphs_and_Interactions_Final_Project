@@ -1,7 +1,10 @@
 # %%
 # 
+from json.decoder import JSONDecodeError
 import spacy
 import json
+from json import JSONDecodeError
+from config import Config
 from tqdm.auto import tqdm
 from spacy.matcher import PhraseMatcher
 from pathlib import Path
@@ -11,10 +14,10 @@ nlp = spacy.load('en_core_web_sm')
 matcher = PhraseMatcher(nlp.vocab, attr="LOWER", validate=True)
 # %%
 # Load the list of synonyms  and titles from file
-with open("./synonym_mapping.json") as f:
+with open(Config.Path.synonym_mapping) as f:
     synonyms = json.load(f)
 
-with open("./substance_names.json") as f:
+with open(Config.Path.substance_names) as f:
     names = json.load(f)
 
 # %%
@@ -33,36 +36,21 @@ for name in tqdm(names):
 
 for word in tqdm(words_to_patterns):
     matcher.add(word, words_to_patterns[word])
-# %%
 
 
-with open("reddit_data/submissions/1a0e88.json") as f:
-    test_post = json.load(f)
-# %%
-
-
-submissions_path = Path().cwd() / "reddit_data" / "submissions"
+submissions_path = Path().cwd() / "private_data" / "reddit_data" / "submissions"
 # %%
 
 submission_files = list(submissions_path.glob("**/*"))
-# %%
-with open("/home/ldorigo/MEGA/DTU/Q2/social_graphs/Social_Graphs_Exercises/project/project_a/reddit_data/submissions/2m0jyv.json", "r") as f:
-    test_file = json.load(f)
-# %%
-test_file
-# %%
-test_text= nlp(test_file["content"])
-# %%
-test_text
-# %%
-matcher(test_text)
 
 # %%
 def get_submissions_generator(submission_files):
     for file in tqdm(submission_files):
         with open(file, "r") as f:
-            yield (json.load(f), file)
-
+            try:
+                yield (json.load(f), file)
+            except JSONDecodeError:
+                pass
 # %%
 def get_submission_doc_generator(submissions_generator):
     for submission, path in submissions_generator:
@@ -76,14 +64,6 @@ submission_generator = get_submissions_generator(submission_files=submission_fil
 submission_doc_generator = get_submission_doc_generator(submission_generator)
 
 
-# %%
-test_text = """
-HGH increase from alpha-GPC (even high doses) is pretty mild, almost negligible actually. Alpha GPC can create an acute spike in HGH production but the pulse fades out quickly.
-Caffeine.
-Whole day HGH production will basically be similar with or without Alpha GPC (even with a high dose).
-
-HGH is a hormone that's pretty much impossible to tweak with supplements only. HGH secretagogues peptides are the way to go if you want to consistently increase your growth hormone levels.
-"""
 # %%
 match_generator = ((matcher(text),submission, path) for text,submission,path in submission_doc_generator)
 # %%
@@ -102,6 +82,22 @@ for matches,submission, path in match_generator:
 # %%
 # Save full reddit data to file:
 
-with open("reddit_data_with_NER.json", "w+") as f:
-    json.dump(submissions_dict, f)
+# with open(Config.Path.reddit_data_with_NER, "w+") as f:
+#     json.dump(submissions_dict, f)
+with open(Config.Path.reddit_data_with_NER, "r+") as f:
+    submissions_dict = json.load( f)
 
+# %%
+# Let's save a  mapping between substances and posts in which they appear
+
+posts_per_substance = {
+    substance: [] for substance in names 
+}
+
+for id in submissions_dict:
+    for substance in submissions_dict[id]["matches"]:
+        posts_per_substance[substance].append(id)
+# %%
+with open(Config.Path.posts_per_substance, "w+") as f:
+    json.dump(posts_per_substance, f)
+# %%

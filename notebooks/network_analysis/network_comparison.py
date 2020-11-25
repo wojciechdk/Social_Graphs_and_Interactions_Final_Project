@@ -16,7 +16,8 @@ from library_functions.load_data_reddit import load_data_reddit
 from library_functions.load_data_wiki import load_data_wiki
 from library_functions.load_substance_names import load_substance_names
 from library_functions.save_synonym_mapping import save_synonym_mapping
-
+import library_functions.plotly_draw
+from config import Config
 
 #%% Load substance names
 substance_names = load_substance_names()
@@ -25,7 +26,7 @@ substance_names = load_substance_names()
 wiki_data = load_data_wiki()
 drug_database_reddit = load_data_reddit()
 
- # %% Synonym Mapping
+# %% Synonym Mapping
 save_synonym_mapping(wiki_data)
 
 # %% Create graphs
@@ -51,7 +52,6 @@ for centrality in ['degree', 'in-degree', 'out-degree', 'betweenness',
                    'eigenvector']:
     w.graph.most_central_nodes(g_wiki, centrality, n=10, printout=True)
 
-
 #%% Most central nodes Reddit
 for centrality in ['degree', 'betweenness', 'eigenvector']:
     w.graph.most_central_nodes(g_reddit, centrality, n=10, printout=True)
@@ -61,7 +61,6 @@ for centrality in ['degree', 'betweenness', 'eigenvector']:
 w.graph.plot_in_vs_out_degree(g_wiki,
                               plot_type='scatter')
 plt.show()
-
 
 #%% Force Atlas plot Wiki
 # w.graph.plot_force_atlas_2(w.graph.remove_isolates(g_wiki),
@@ -124,3 +123,17 @@ for graph, graph_name in zip(graphs, graph_names):
     print(f'\n{graph_name}:')
     for centrality in centralities:
         w.graph.most_central_nodes(graph, centrality, n=10, printout=True)
+
+# %% Save graphs to pickle
+nx.readwrite.gpickle.write_gpickle(g_reddit, Config.Path.reddit_graph)
+nx.readwrite.gpickle.write_gpickle(g_wiki, Config.Path.wiki_digraph)
+# %% Let's look at the GCC's and undirected graphs for the following.
+
+gcc_wiki_dir = w.graph.largest_connected_component(g_wiki)
+gcc_reddit = w.graph.largest_connected_component(g_reddit)
+# %%
+
+gcc_wiki = gcc_wiki_dir.to_undirected()
+
+nx.readwrite.gpickle.write_gpickle(gcc_reddit, Config.Path.reddit_gcc)
+nx.readwrite.gpickle.write_gpickle(gcc_wiki, Config.Path.wiki_gcc)
