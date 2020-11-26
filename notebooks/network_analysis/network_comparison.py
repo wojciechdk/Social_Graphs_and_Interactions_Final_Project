@@ -85,7 +85,7 @@ plt.hist(caffeine_polarity, bins=100)
 plt.show()
 axes.set_title('Distribution of caffeine polarity')
 axes.set_xlabel('Polarity')
-axis.set_ylabel('Number of posts')
+axes.set_ylabel('Number of posts')
 
 
 #%% Create alternative graphs
