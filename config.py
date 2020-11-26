@@ -8,6 +8,11 @@ class Config:
         # Project root
         project_root = Path(__file__).parent
 
+
+        # Private data (not added to git to save space and bandwidth)
+        private_data_folder = project_root / "private_data" 
+        
+
         # Shared data:
         shared_data_folder = project_root / 'shared_data'
 
