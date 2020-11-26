@@ -1,8 +1,10 @@
 #%%
 
+import math
 from typing import Dict, List, Tuple, Union
 from networkx.drawing import layout
 from networkx.generators import line
+import numpy as np
 import plotly.graph_objects as go
 import networkx as nx
 import json
@@ -27,22 +29,35 @@ def get_edge_trace(
 ):
     edges_x = []
     edges_y = []
+    widths = []
 
-    for edge in graph.edges:
+    max_width = 50
+    max_weight = np.max([a[2][edge_weight_attribute] for a in  list(graph.edges(data=True))])
+
+    for edge in graph.edges(data=True):
         x0, y0 = positions[edge[0]]
         x1, y1 = positions[edge[1]]
-        edges_x += [x0, x1, None]
-        edges_y += [y0, y1, None]
+        edges_x.append( [x0, x1, None])
+        edges_y.append([y0, y1, None])
+        widths.append(math.ceil(edge[2][edge_weight_attribute]*max_width/max_weight))
 
-    edge_trace = go.Scatter(
-        x=edges_x,
-        y=edges_y,
-        line={"width": 0.5, "color": "black"},
-        hoverinfo="none",
-        mode="lines",
-    )
 
-    return edge_trace
+
+    edge_traces = []
+    for i in range(len(edges_x)):
+
+        if widths[i] > 1:
+            edge_traces.append(
+                go.Scatter(
+                x=edges_x[i],
+                y=edges_y[i],
+                line={"width": widths[i], "color": "black"},
+                hoverinfo="none",
+                mode="lines",
+            )
+            )
+
+    return edge_traces
 
 
 def split_text_at(text: str, length: int) -> str:
@@ -146,7 +161,7 @@ def draw_graph_plotly(
     if not positions:
         positions = nx.layout.spring_layout(G, weight=edge_weight_attribute)
 
-    edge_trace = get_edge_trace(
+    edge_traces = get_edge_trace(
         graph=graph, positions=positions, edge_weight_attribute=edge_weight_attribute
     )
     node_trace = get_nodes_trace(
@@ -156,7 +171,7 @@ def draw_graph_plotly(
         node_size_attribute=node_size_attribute,
     )
 
-    data = [edge_trace] if edges_only else [edge_trace, node_trace]
+    data = edge_traces if edges_only else edge_traces+ [node_trace]
     figure = go.Figure(
         data=data,
         layout=go.Layout(
@@ -170,3 +185,5 @@ def draw_graph_plotly(
         ),
     )
     return figure
+
+# %%

@@ -2,52 +2,59 @@
 # %%
 import community
 from fa2 import ForceAtlas2
-import bokeh
+from networkx.readwrite.adjlist import read_adjlist
 from library_functions import  plotly_draw
 import networkx as nx
 from config import Config
 import wojciech as w
-
+import library_functions as lf
+import importlib
 #%%
-graph_reddit : nx.Graph
-graph_wiki : nx.Graph
-graph_reddit = nx.readwrite.gpickle.read_gpickle(Config.Path.reddit_gcc)
-graph_wiki = nx.readwrite.gpickle.read_gpickle(Config.Path.wiki_gcc)
+# graph_reddit : nx.Graph
+# graph_wiki : nx.Graph
+# graph_reddit = nx.readwrite.gpickle.read_gpickle(Config.Path.reddit_gcc)
+# graph_wiki = nx.readwrite.gpickle.read_gpickle(Config.Path.wiki_gcc)
+
+graph_reddit = lf.create_graph_reddit()
+graph_wiki = lf.create_graph_wiki()
 
 
-forceatlas2 = ForceAtlas2(
-                        # Behavior alternatives
-                        outboundAttractionDistribution=True,  # Dissuade hubs
-                        linLogMode=False,  # NOT IMPLEMENTED
-                        adjustSizes=False,  # Prevent overlap (NOT IMPLEMENTED)
-                        edgeWeightInfluence=1.0,
-
-                        # Performance
-                        jitterTolerance=0.5,  # Tolerance
-                        barnesHutOptimize=True,
-                        barnesHutTheta=1.2,
-                        multiThreaded=False,  # NOT IMPLEMENTED
-
-                        # Tuning
-                        scalingRatio=1,
-                        strongGravityMode=True,
-                        gravity=0.001,
-
-                        # Log
-                        verbose=True)
-
-positions_wiki = forceatlas2.forceatlas2_networkx_layout(graph_wiki, pos=None, iterations=1000)
-# positions_reddit = forceatlas2.forceatlas2_networkx_layout(graph_reddit, pos=None, iterations=1000)
+graph_reddit = w.graph.largest_connected_component(graph_reddit)
 # %%
 
 
-plotly_draw.draw_graph_plotly(
-    graph = graph_wiki,
-    positions=positions_wiki
-)
+
+
+positions_reddit = lf.get_fa2_layout(graph=graph_reddit, edge_weight_attribute="count")
+# positions_reddit = forceatlas2.forceatlas2_networkx_layout(graph_reddit, pos=None, iterations=1000)
+# %%
+importlib.reload(plotly_draw)
+from library_functions import  plotly_draw
+
+# plotly_draw.draw_graph_plotly(
+#     graph = graph_wiki,
+#     positions=positions_wiki
+# )
 # %%
 plotly_draw.draw_graph_plotly(
     graph=  graph_reddit,
-    positions=positions_reddit
+    positions=positions_reddit,
+    node_size_attribute="degree",
+    edge_weight_attribute="count"
+)
+
+# %%
+plotly_draw.draw_graph_plotly(
+    graph=  graph_reddit,
+    positions=positions_reddit,
+    node_size_attribute="degree",
+    node_color_attribute="louvain_community_wiki"
+)
+# %%
+plotly_draw.draw_graph_plotly(
+    graph=  graph_wiki,
+    positions=positions_wiki,
+    node_size_attribute="degree",
+    node_color_attribute="louvain_community_wiki"
 )
 # %%
