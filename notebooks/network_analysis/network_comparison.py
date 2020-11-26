@@ -16,8 +16,10 @@ from pathlib import Path
 # %% Create graphs
 g_wiki = lf.create_graph_wiki()
 g_reddit = lf.create_graph_reddit()
+g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
+g_reddit_min_3_links = lf.create_graph_reddit(minimum_occurrences_to_link=3)
 
-#%%
+#%% Find pages with most connections
 # reddit_data = lf.load_data_reddit()
 #
 # max_matches = 0
@@ -57,7 +59,7 @@ w.graph.plot_in_vs_out_degree(g_wiki,
                               colormap_norm='log')
 plt.show()
 
-# %% Force Atlas plot Wiki
+#%% Force Atlas plot Wiki
 # w.graph.plot_force_atlas_2(w.graph.remove_isolates(g_wiki),
 #                            node_size='by degree',
 #                            node_color=np.array([[0, 0, 1, 0.5]]),
@@ -67,45 +69,51 @@ plt.show()
 #                            outboundAttractionDistribution=True)
 # plt.show()
 
-# %% Find most often occurring edges
+#%% Find most often occurring edges
 # edges_count = nx.get_edge_attributes(g_wiki, "count")
 # edges_count_sorted = sorted(edges_count.items(),
 #                             key=itemgetter(1),
 #                             reverse=True)
 
 
-# %% Create alternative reddit graphs
+# %% Plot distribution of edge attributes
+
+caffeine_polarity = g_reddit_max_10.nodes['caffeine']['polarity']
+
+figure, axes = w.empty_figure()
+plt.hist(caffeine_polarity, bins=100)
+plt.show()
+axes.set_title('Distribution of caffeine polarity')
+axes.set_xlabel('Polarity')
+axis.set_ylabel('Number of posts')
+
+
+#%% Create alternative graphs
 # Positive
-g_reddit_positive = g_reddit.copy()
-conditions_not_positive = {'polarity': lambda x: np.median(x) < 0.2}
-edges_not_positive = w.graph.get_edges_by_attribute(g_reddit_positive,
-                                                    conditions_not_positive)
+g_reddit_positive = g_reddit_max_10.copy()
+
+
+def edge_not_positive(edge_attributes):
+    return edge_attributes['polarity_weighted'] < 0.13
+
+
+edges_not_positive =\
+    w.graph.get_edges_by_conditions(g_reddit_positive, edge_not_positive)
 g_reddit_positive.remove_edges_from(edges_not_positive)
 
 # Negative
-g_reddit_negative = g_reddit.copy()
-conditions_not_negative = {'polarity': lambda x: np.median(x) > -0.2}
-edges_not_negative = w.graph.get_edges_by_attribute(g_reddit_negative,
-                                                    conditions_not_negative)
+g_reddit_negative = g_reddit_max_10.copy()
+
+
+def edge_not_negative(edge_attributes):
+    return edge_attributes['polarity_weighted'] > 0.13
+
+
+edges_not_negative = w.graph.get_edges_by_conditions(g_reddit_negative,
+                                                     edge_not_negative)
 g_reddit_negative.remove_edges_from(edges_not_negative)
 
-# %% Plot distribution of attributes
-figure = plt.figure(figsize=(12, 8))
-axes = figure.gca()
 
-w.graph.plot_distribution(
-    g_reddit,
-    quantity='attribute',
-    attribute_object='edge',
-    attribute_name='polarity',
-    attribute_function=np.median,
-    attribute_function_name='median',
-    plot_type='bar',
-    axes=axes,
-    bins=100
-)
-
-plt.show()
 
 # %% Degree distribution of Reddit plots
 graphs_to_show = [g_reddit, g_reddit_positive, g_reddit_negative]

@@ -1,8 +1,11 @@
 import library_functions as lf
 import networkx as nx
+import numpy as np
+import wojciech as w
 
 
-def create_graph_reddit():
+def create_graph_reddit(max_drugs_in_post=np.inf,
+                        minimum_occurrences_to_link=1):
     # Load the clean Reddit and Wiki data
     drug_database_reddit = lf.load_data_reddit()
     wiki_data = lf.load_data_wiki()
@@ -27,14 +30,33 @@ def create_graph_reddit():
         link_drugs(g_reddit,
                    reddit_post['matches'],
                    reddit_post['polarity'],
-                   reddit_post['subjectivity'])
+                   reddit_post['subjectivity'],
+                   max_drugs_in_post)
+
+    if minimum_occurrences_to_link > 1:
+        def conditional_function(edge_attributes):
+            return edge_attributes['count'] < minimum_occurrences_to_link
+
+        edges_to_remove =\
+            w.graph.get_edges_by_conditions(g_reddit, conditional_function)
+
+        g_reddit.remove_edges_from(edges_to_remove)
+
+    # Weight the parameters
+    attributes_to_weight = ['polarity', 'subjectivity']
+
+    for edge in g_reddit.edges:
+        for attribute in attributes_to_weight:
+            g_reddit.edges[edge][attribute + '_weighted'] = \
+                weigh_attribute(attribute, g_reddit.edges[edge])
 
     return g_reddit
 
 
-def link_drugs(G: nx.Graph, list_of_drugs, polarity, subjectivity):
-    if len(list_of_drugs) <= 1:
-        return G
+def link_drugs(G: nx.Graph, list_of_drugs, polarity, subjectivity,
+               max_drugs_in_post):
+    if (len(list_of_drugs) <= 1) or (len(list_of_drugs) > max_drugs_in_post):
+        return
     else:
         # Increase the count of the drug mentions
         for drug in list_of_drugs:
@@ -52,10 +74,25 @@ def link_drugs(G: nx.Graph, list_of_drugs, polarity, subjectivity):
                     edge = (drug, other_drug)
                     if G.has_edge(*edge):
                         G.edges[edge]['count'] += 1
+                        G.edges[edge]['number_of_drugs_in_post']\
+                            .append(len(list_of_drugs))
                         G.edges[edge]['polarity'].append(polarity)
                         G.edges[edge]['subjectivity'].append(subjectivity)
                     else:
                         G.add_edge(*edge,
                                    count=1,
+                                   number_of_drugs_in_post=[len(list_of_drugs)],
                                    polarity=[polarity],
                                    subjectivity=[subjectivity])
+
+
+def weigh_attribute(attribute_to_weigh, all_edge_attributes):
+    value_attribute = np.array(all_edge_attributes[attribute_to_weigh])
+    number_of_drugs_in_post =\
+        np.array(all_edge_attributes['number_of_drugs_in_post'])
+    weights = 1 / (number_of_drugs_in_post - 1)
+
+    number_of_posts_containing_link = all_edge_attributes['count']
+    value_weighted = np.sum(weights * value_attribute) / np.sum(weights)
+
+    return value_weighted
