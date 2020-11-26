@@ -20,17 +20,51 @@ g_reddit = lf.create_graph_reddit()
 g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
 g_reddit_min_3_links = lf.create_graph_reddit(minimum_occurrences_to_link=3)
 
-#%% Find pages with most connections
-# reddit_data = lf.load_data_reddit()
-#
-# max_matches = 0
-# label_max = ''
-# for post_label, post in reddit_data.items():
-#     if len(post['matches']) > max_matches:
-#         max_matches = len(post['matches'])
-#         label_max = post_label
-#
-# post_with_most_matches = reddit_data[label_max]
+
+#%% Create alternative graphs
+# Positive
+g_reddit_positive = g_reddit_max_10.copy()
+
+
+def edge_not_positive(edge_attributes):
+    return edge_attributes['polarity_weighted'] < 0.13
+
+
+edges_not_positive =\
+    w.graph.get_edges_by_conditions(g_reddit_positive, edge_not_positive)
+g_reddit_positive.remove_edges_from(edges_not_positive)
+
+# Negative
+g_reddit_negative = g_reddit_max_10.copy()
+
+
+def edge_not_negative(edge_attributes):
+    return edge_attributes['polarity_weighted'] > 0.13
+
+
+edges_not_negative = w.graph.get_edges_by_conditions(g_reddit_negative,
+                                                     edge_not_negative)
+g_reddit_negative.remove_edges_from(edges_not_negative)
+
+
+#%% List most frequent edges
+# TODO: create graphs in different way. Check sentiment before building instead of removing edges
+
+graphs = [g_reddit_max_10, g_reddit_positive, g_reddit_negative]
+graph_names = ['Reddit', 'Reddit positive', 'Reddit negative']
+
+most_frequent_edges = dict()
+for graph, graph_name in zip(graphs, graph_names):
+    print(f'\n{graph_name}:')
+    most_frequent_edges[graph_name] = lf.most_frequent_edges(graph,
+                                                             n=10,
+                                                             printout=True)
+
+
+
+#%% Show distribution of attribute
+axes = lf.plot_distribution_of_attribute(g_reddit_max_10, 'node',
+                                         'tea', 'polarity')
 
 
 # %% Plot degree distribution summary
@@ -69,51 +103,6 @@ plt.show()
 #                            iterations=100,
 #                            outboundAttractionDistribution=True)
 # plt.show()
-
-#%% Find most often occurring edges
-# edges_count = nx.get_edge_attributes(g_wiki, "count")
-# edges_count_sorted = sorted(edges_count.items(),
-#                             key=itemgetter(1),
-#                             reverse=True)
-
-
-# %% Plot distribution of edge attributes
-
-caffeine_polarity = g_reddit_max_10.nodes['caffeine']['polarity']
-
-figure, axes = w.empty_figure()
-plt.hist(caffeine_polarity, bins=100)
-plt.show()
-axes.set_title('Distribution of caffeine polarity')
-axes.set_xlabel('Polarity')
-axes.set_ylabel('Number of posts')
-
-
-#%% Create alternative graphs
-# Positive
-g_reddit_positive = g_reddit_max_10.copy()
-
-
-def edge_not_positive(edge_attributes):
-    return edge_attributes['polarity_weighted'] < 0.13
-
-
-edges_not_positive =\
-    w.graph.get_edges_by_conditions(g_reddit_positive, edge_not_positive)
-g_reddit_positive.remove_edges_from(edges_not_positive)
-
-# Negative
-g_reddit_negative = g_reddit_max_10.copy()
-
-
-def edge_not_negative(edge_attributes):
-    return edge_attributes['polarity_weighted'] > 0.13
-
-
-edges_not_negative = w.graph.get_edges_by_conditions(g_reddit_negative,
-                                                     edge_not_negative)
-g_reddit_negative.remove_edges_from(edges_not_negative)
-
 
 
 # %% Degree distribution of Reddit plots
@@ -161,3 +150,16 @@ gcc_wiki = gcc_wiki_dir.to_undirected()
 
 nx.readwrite.gpickle.write_gpickle(gcc_reddit, Config.Path.reddit_gcc)
 nx.readwrite.gpickle.write_gpickle(gcc_wiki, Config.Path.wiki_gcc)
+
+
+#%% Find Reddit posts with most subsances
+# reddit_data = lf.load_data_reddit()
+#
+# max_matches = 0
+# label_max = ''
+# for post_label, post in reddit_data.items():
+#     if len(post['matches']) > max_matches:
+#         max_matches = len(post['matches'])
+#         label_max = post_label
+#
+# post_with_most_matches = reddit_data[label_max]
