@@ -1,3 +1,4 @@
+#%%
 import json
 import library_functions as lf
 import matplotlib.pyplot as plt
