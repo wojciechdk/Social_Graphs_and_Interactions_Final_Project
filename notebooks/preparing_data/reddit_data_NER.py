@@ -1,5 +1,5 @@
 # %%
-# 
+#
 from json.decoder import JSONDecodeError
 import spacy
 import json
@@ -8,7 +8,8 @@ from config import Config
 from tqdm.auto import tqdm
 from spacy.matcher import PhraseMatcher
 from pathlib import Path
-nlp = spacy.load('en_core_web_sm')
+
+nlp = spacy.load("en_core_web_sm")
 
 # Initialize a spacy matcher. We want to match on lowercase tokens.
 matcher = PhraseMatcher(nlp.vocab, attr="LOWER", validate=True)
@@ -39,9 +40,11 @@ for word in tqdm(words_to_patterns):
 
 
 submissions_path = Path().cwd() / "private_data" / "reddit_data" / "submissions"
+comments_path = Config.Path.private_data_folder / "reddit_data" / "comments"
 # %%
 
 submission_files = list(submissions_path.glob("**/*"))
+comments_files = list(comments_path.glob("**/*"))
 
 # %%
 def get_submissions_generator(submission_files):
@@ -51,29 +54,45 @@ def get_submissions_generator(submission_files):
                 yield (json.load(f), file)
             except JSONDecodeError:
                 pass
+    for file in tqdm(comments_files):
+        with open(file, "r") as f:
+            try:
+                yield (json.load(f), file)
+            except JSONDecodeError:
+                pass
+
+
 # %%
 def get_submission_doc_generator(submissions_generator):
     for submission, path in submissions_generator:
-        text = submission["title"] + " " + submission["content"]
+        try:
+            text = submission["title"] + " " + submission["content"]
+        except:
+            text = submission["body"]
         yield (nlp.make_doc(text), submission, path)
         # yield nlp(test_text)
 
 
-#%% 
+#%%
 submission_generator = get_submissions_generator(submission_files=submission_files)
 submission_doc_generator = get_submission_doc_generator(submission_generator)
 
 
 # %%
-match_generator = ((matcher(text),submission, path) for text,submission,path in submission_doc_generator)
+match_generator = (
+    (matcher(text), submission, path)
+    for text, submission, path in submission_doc_generator
+)
 # %%
 
 submissions_dict = {}
-for matches,submission, path in match_generator:
+for matches, submission, path in match_generator:
     # Get the found mathches actual name
     matches_resolved = [matcher.vocab[match[0]].text for match in matches]
     # Eliminate duplicates
     matches_unique = list(set(matches_resolved))
+    if not matches_unique:
+        continue
     # Add to the submission and save back to file. Also add to large reddit dictionnary
     submission["matches"] = matches_unique
     with open(path, "w") as f:
@@ -82,17 +101,15 @@ for matches,submission, path in match_generator:
 # %%
 # Save full reddit data to file:
 
-# with open(Config.Path.reddit_data_with_NER, "w+") as f:
-#     json.dump(submissions_dict, f)
-with open(Config.Path.reddit_data_with_NER, "r+") as f:
-    submissions_dict = json.load( f)
+with open(Config.Path.reddit_data_with_NER, "w+") as f:
+    json.dump(submissions_dict, f)
+# with open(Config.Path.reddit_data_with_NER, "r+") as f:
+# submissions_dict = json.load( f)
 
 # %%
 # Let's save a  mapping between substances and posts in which they appear
 
-posts_per_substance = {
-    substance: [] for substance in names 
-}
+posts_per_substance = {substance: [] for substance in names}
 
 for id in submissions_dict:
     for substance in submissions_dict[id]["matches"]:

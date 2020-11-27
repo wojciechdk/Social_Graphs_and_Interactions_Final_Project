@@ -1,7 +1,7 @@
-
 # %%
 import sys
-sys.path.append("/home/ldorigo/MEGA/DTU/Q2/social_graphs/mediawiki/") 
+
+sys.path.append("/home/ldorigo/MEGA/DTU/Q2/social_graphs/mediawiki/")
 
 
 from os import remove
@@ -23,12 +23,16 @@ with open(full_tree_clean_path, "r") as f:
 
 
 # %%
-# The API returns outgoing links that include those in template boxes at the end of pages, which adds enormous amount of 
+# The API returns outgoing links that include those in template boxes at the end of pages, which adds enormous amount of
 # Links that are not really relevant. We thus need to extract the links by hand, which is extremely slow.
 def get_inline_links(page: MediaWiki.page):
     api_links = page.links
     # print(f"Parsing links for page: {page.title}")
-    relevant_sections = [section for section in page.sections if section not in ["See also", "References", "Bibliography", "External links"]]
+    relevant_sections = [
+        section
+        for section in page.sections
+        if section not in ["See also", "References", "Bibliography", "External links"]
+    ]
     # Also parse the initial section (0)
     relevant_sections.append(0)
     actual_links = {}
@@ -48,22 +52,23 @@ def get_inline_links(page: MediaWiki.page):
             link_title = re.search("/([^/]+)(/?)$", url)
             if link_title:
                 actual_title = link_title[1].replace("_", " ")
-                
+
                 if actual_title not in api_links:
                     # print(f"Warning: inline link {actual_title} not found in api links")
                     continue
-                actual_links[actual_title] = actual_links.setdefault(actual_title, 0) + 1
+                actual_links[actual_title] = (
+                    actual_links.setdefault(actual_title, 0) + 1
+                )
     return actual_links
 
 
-def process_page(name : str, current_dir: Path, redirects: Dict) -> Dict:
-    filepath = current_dir.joinpath(name.replace("/","_")+".json")
-    
+def process_page(name: str, current_dir: Path, redirects: Dict) -> Dict:
+    filepath = current_dir.joinpath(name.replace("/", "_") + ".json")
+
     # To enable resuming: if the article was already downloaded, just read it from file
     if filepath.exists():
         with open(filepath.as_posix(), "r") as f:
             return json.load(f)
-
 
     page = mw.page(name)
     results = {}
@@ -79,14 +84,16 @@ def process_page(name : str, current_dir: Path, redirects: Dict) -> Dict:
     ## Finally, save the contents and the url for quick reference:
     results["url"] = page.url
     results["content"] = page.content
-    
+
     ## Save to a json file
     with open(filepath, "w+") as f:
-        json.dump(results,f)
+        json.dump(results, f)
     return results
 
 
-def process_tree(root_name: str, root_node: Dict, current_dir: Path, redirects: Dict) -> Dict:
+def process_tree(
+    root_name: str, root_node: Dict, current_dir: Path, redirects: Dict
+) -> Dict:
     results = {}
     for link in tqdm(root_node["links"]):
         results[link] = {}
@@ -96,13 +103,14 @@ def process_tree(root_name: str, root_node: Dict, current_dir: Path, redirects: 
         new_dir = current_dir.joinpath(sub_category)
         if not new_dir.exists():
             os.mkdir(new_dir)
-        cat_results = process_tree(root_name=sub_category,
-                                  root_node=root_node["sub-categories"][sub_category],
-                                  current_dir = new_dir,
-                                  redirects=redirects)
+        cat_results = process_tree(
+            root_name=sub_category,
+            root_node=root_node["sub-categories"][sub_category],
+            current_dir=new_dir,
+            redirects=redirects,
+        )
         results.update(cat_results)
     return results
-
 
 
 # Flat dict of redirects for later reference
@@ -114,12 +122,14 @@ if not data_path.exists():
     os.mkdir(data_path)
 
 mw = MediaWiki()
-content_tree = process_tree(root_name="custom_root",
-                            root_node=root_tree, 
-                            current_dir=data_path,
-                            redirects = redirects)
+content_tree = process_tree(
+    root_name="custom_root",
+    root_node=root_tree,
+    current_dir=data_path,
+    redirects=redirects,
+)
 
-# %% 
+# %%
 
 # Clean some pages that were overlooked
 
@@ -134,6 +144,7 @@ del content_tree["Monoamine oxidase inhibitor"]
 del content_tree["Heterocyclic antidepressant"]
 del content_tree["Tricyclic antidepressant"]
 del content_tree["Barbiturate"]
+del content_tree["Aphrodisiac"]
 # del content_tree["Tricyclic antidepressant"]
 
 
