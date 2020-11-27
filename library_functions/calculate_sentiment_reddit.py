@@ -18,7 +18,10 @@ def calculate_sentiment_reddit(alternative_path=None, alternative_path_out=None)
         drug_database_reddit = json.load(file)
 
     for post_id, post in tqdm(drug_database_reddit.items()):
-        analysis = TextBlob(post["content"])
+        try:
+            analysis = TextBlob(post["content"])
+        except KeyError:
+            analysis = TextBlob(post["body"])  # for comments
         post["polarity"] = analysis.polarity
         post["subjectivity"] = analysis.subjectivity
 
