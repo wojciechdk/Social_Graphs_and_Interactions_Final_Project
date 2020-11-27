@@ -6,13 +6,14 @@ import wojciech as w
 
 def create_graph_reddit(max_drugs_in_post=np.inf,
                         min_edge_occurrences_to_link=1,
-                        conditional_functions_dict=None):
+                        conditional_functions_dict=None,
+                        alternative_path=None):
 
     if conditional_functions_dict is None:
         conditional_functions_dict = dict()
 
     # Load the clean Reddit and Wiki data
-    drug_database_reddit = lf.load_data_reddit()
+    drug_database_reddit = lf.load_data_reddit(alternative_path)
     wiki_data = lf.load_data_wiki()
     substance_names = lf.load_substance_names()
 

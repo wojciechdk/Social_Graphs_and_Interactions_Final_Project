@@ -14,7 +14,6 @@ try:
 except:
     from project.config import Config
 
-G = nx.random_geometric_graph(200, 0.125)
 # %%
 with open(Config.Path.contents_per_substance, "r+") as f:
     contents_per_substance = json.load(f)
@@ -22,40 +21,49 @@ with open(Config.Path.urls_per_substance, "r+") as f:
     url_per_substance = json.load(f)
 
 
-def get_edge_trace(
+def get_edge_traces(
     graph: nx.Graph,
     positions: Dict[Union[str, int], Tuple[int, int]] = None,
     edge_weight_attribute: str = None,
+    edge_hover_attributes: List[str] = None,
 ):
     edges_x = []
     edges_y = []
     widths = []
-
+    names = []
+    counts = []
     max_width = 50
-    max_weight = np.max([a[2][edge_weight_attribute] for a in  list(graph.edges(data=True))])
+    max_weight = np.max(
+        [a[2][edge_weight_attribute] for a in list(graph.edges(data=True))]
+    )
 
-    for edge in graph.edges(data=True):
-        x0, y0 = positions[edge[0]]
-        x1, y1 = positions[edge[1]]
-        edges_x.append( [x0, x1, None])
-        edges_y.append([y0, y1, None])
-        widths.append(math.ceil(edge[2][edge_weight_attribute]*max_width/max_weight))
-
-
+    for e1, e2, data in graph.edges(data=True):
+        x0, y0 = positions[e1]
+        x1, y1 = positions[e2]
+        edges_x.append([x0, x1, x1 + 1, x0 + 1, x0])
+        edges_y.append([y0, y1, y1, y0, y0])
+        widths.append(math.ceil(data[edge_weight_attribute] * max_width / max_weight))
+        names.append((e1, e2))
+        if "count" in edge_hover_attributes:
+            counts.append(data["count"])
 
     edge_traces = []
     for i in range(len(edges_x)):
-
-        if widths[i] > 1:
-            edge_traces.append(
-                go.Scatter(
+        if widths[i] > 0:
+            trace = go.Scatter(
                 x=edges_x[i],
                 y=edges_y[i],
                 line={"width": widths[i], "color": "black"},
-                hoverinfo="none",
+                hoverinfo="text" if edge_hover_attributes else "none",
                 mode="lines",
+                fill="toself",
             )
-            )
+            if edge_hover_attributes:
+                text = f"Link between {names[i][0]} and +{names[i][1]}. <br>"
+                if "count" in edge_hover_attributes:
+                    text += f"This link came up {counts[i]} times."
+                trace.text = text
+            edge_traces.append(trace)
 
     return edge_traces
 
@@ -102,7 +110,7 @@ def get_nodes_trace(
 ):
     nodes_x = []
     nodes_y = []
-    colors = []  if node_color_attribute else "black"
+    colors = [] if node_color_attribute else "black"
     sizes = [] if node_size_attribute else 20
     for node, data in graph.nodes(data=True):
         nodes_x.append(positions[node][0])
@@ -125,7 +133,6 @@ def get_nodes_trace(
             else:
                 sizes.append(graph.degree(node))
 
-
     hovers = get_nodes_hover(graph)
 
     node_names = list(graph.nodes)
@@ -134,16 +141,10 @@ def get_nodes_trace(
         x=nodes_x,
         y=nodes_y,
         text=hovers,
-        marker={
-            "color" : colors,
-            "size" : sizes,
-            "sizemin" : 5,
-            "sizeref" : 5
-        },
+        marker={"color": colors, "size": sizes, "sizemin": 5, "sizeref": 5},
         mode="markers",
         hoverinfo="text",
     )
-
 
     return node_trace
 
@@ -155,14 +156,18 @@ def draw_graph_plotly(
     edges_only: bool = False,
     node_color_attribute: str = None,
     node_size_attribute: str = None,
+    edge_hover_attributes: List[str] = None,
 ):
 
     # If no positions are passed, compute spring layout positioning
     if not positions:
-        positions = nx.layout.spring_layout(G, weight=edge_weight_attribute)
+        positions = nx.layout.spring_layout(graph, weight=edge_weight_attribute)
 
-    edge_traces = get_edge_trace(
-        graph=graph, positions=positions, edge_weight_attribute=edge_weight_attribute
+    edge_traces = get_edge_traces(
+        graph=graph,
+        positions=positions,
+        edge_weight_attribute=edge_weight_attribute,
+        edge_hover_attributes=edge_hover_attributes,
     )
     node_trace = get_nodes_trace(
         graph=graph,
@@ -171,7 +176,7 @@ def draw_graph_plotly(
         node_size_attribute=node_size_attribute,
     )
 
-    data = edge_traces if edges_only else edge_traces+ [node_trace]
+    data = edge_traces if edges_only else edge_traces + [node_trace]
     figure = go.Figure(
         data=data,
         layout=go.Layout(
@@ -185,5 +190,6 @@ def draw_graph_plotly(
         ),
     )
     return figure
+
 
 # %%
