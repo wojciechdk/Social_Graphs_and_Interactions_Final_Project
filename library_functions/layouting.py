@@ -22,22 +22,30 @@ forceatlas2 = ForceAtlas2(
     # Tuning
     scalingRatio=1,
     strongGravityMode=True,
-    gravity=0.001,
+    gravity=0.1,
     # Log
     verbose=True,
 )
 
 
-def get_fa2_layout(graph: nx.Graph, edge_weight_attribute: str):
+def get_fa2_layout(graph: nx.Graph, edge_weight_attribute: str = None):
     try:
-        layout = forceatlas2.forceatlas2_networkx_layout(
-        graph, pos=None, weight_attr=edge_weight_attribute, iterations=1000
-    )
+        if edge_weight_attribute:
+            layout = forceatlas2.forceatlas2_networkx_layout(
+                graph, pos=None, weight_attr=edge_weight_attribute, iterations=1000
+            )
+        else:
+            layout = forceatlas2.forceatlas2_networkx_layout(
+                graph, pos=None, iterations=1000
+            )
     except TypeError:
-        print("You need to install force atlas from source because the pip version doesn't support weighted edges. ")
+        print(
+            "You need to install force atlas from source because the pip version doesn't support weighted edges. "
+        )
         print("See https://github.com/bhargavchippada/forceatlas2 ")
         raise
     return layout
+
 
 def get_circle_layout(graph: nx.Graph):
     return nx.drawing.layout.circular_layout(graph)
