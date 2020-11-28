@@ -9,8 +9,6 @@ from .plot_comparison_of_attribute_distributions import (
     plot_comparison_of_attribute_distributions,
 )
 from .most_frequent_edges import most_frequent_edges
-
-# from .plot_distribution_of_attribute import plot_distribution_of_attribute
 from .save_wiki_data import (
     save_synonym_mapping,
     save_contents,

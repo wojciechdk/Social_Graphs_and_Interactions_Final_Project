@@ -22,7 +22,7 @@ def plot_comparison_of_attribute_distributions(
 
         figure.suptitle(f'Distribution of the {attribute_parent} attribute: '
                         f'"{attribute_name}"',
-                        y=0.99,
+                        y=max(0.98 + 0.03 * (len(graphs) - 1), 0.995),
                         size=20)
 
         w.graph.plot_distribution(

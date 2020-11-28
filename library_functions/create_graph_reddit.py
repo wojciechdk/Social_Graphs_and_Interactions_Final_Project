@@ -42,11 +42,11 @@ def create_graph_reddit(max_drugs_in_post=np.inf,
 
     # Remove the edges that occur fewer times than the threshold
     if min_edge_occurrences_to_link > 1:
-        def conditional_function(edge_attributes):
+        def occurring_to_seldom(edge_attributes):
             return edge_attributes['count'] < min_edge_occurrences_to_link
 
         edges_to_remove =\
-            w.graph.get_edges_by_conditions(g_reddit, conditional_function)
+            w.graph.get_edges_by_conditions(g_reddit, occurring_to_seldom)
 
         g_reddit.remove_edges_from(edges_to_remove)
 
@@ -65,7 +65,8 @@ def link_drugs(G: nx.Graph,
                list_of_drugs,
                polarity,
                subjectivity,
-               max_drugs_in_post, conditional_functions_dict):
+               max_drugs_in_post,
+               conditional_functions_dict):
 
     # Discard posts where the number of mentioned substances exceeds the limit
     if (len(list_of_drugs) <= 1) or (len(list_of_drugs) > max_drugs_in_post):
