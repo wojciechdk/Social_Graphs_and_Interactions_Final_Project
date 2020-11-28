@@ -14,7 +14,6 @@ from operator import itemgetter
 from pandas_profiling import ProfileReport
 from pathlib import Path
 
-
 # %% Create graphs
 g_wiki = lf.create_graph_wiki()
 g_reddit = lf.create_graph_reddit()
@@ -25,11 +24,18 @@ g_reddit_post_length_limit = lf.create_graph_reddit(
 g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
 g_reddit_min_3_links = lf.create_graph_reddit(min_edge_occurrences_to_link=3)
 
+g_reddit_chosen = lf.create_graph_reddit(
+    max_drugs_in_post=10,
+    min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25
+)
+
 # Positive sentiment
 conditions_positive = {'polarity': lambda x: x > 0.13}
 g_reddit_positive = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25,
     conditional_functions_dict=conditions_positive
 )
 
@@ -38,8 +44,10 @@ conditions_negative = {'polarity': lambda x: x < 0.13}
 g_reddit_negative = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25,
     conditional_functions_dict=conditions_negative
 )
+
 
 # %% Plot comparison of attribute distributions
 graphs = [
@@ -76,17 +84,19 @@ axess[0].set_xlim((-0.5, 0.5))
 plt.show()
 
 # %% Plot distribution of values of one instance (node or edge)
-graphs = [g_reddit,
-          g_reddit_max_10,
-          g_reddit_min_3_links,
-          g_reddit_post_length_limit
-          ]
+graphs = [
+    g_reddit,
+    g_reddit_max_10,
+    g_reddit_min_3_links,
+    g_reddit_post_length_limit
+]
 
-graph_names = ['Reddit Raw',
-               'Max 10 drugs in post',
-               'Min 3 occurrences for link',
-               'Only posts with 25+ characters'
-               ]
+graph_names = [
+    'Reddit Raw',
+    'Max 10 drugs in post',
+    'Min 3 occurrences for link',
+    'Only posts with 25+ characters'
+]
 
 instance = 'node'
 instance_label = 'caffeine'
@@ -99,7 +109,6 @@ w.graph.plot_distribution_of_attribute_of_1_instance(
     attribute_name=attribute_name,
     graph_names=graph_names
 )
-
 
 # %% Plot degree distribution summary
 graphs_to_show = [g_reddit, g_wiki, w.graph.erdos_renyi_like(g_reddit)]

@@ -22,14 +22,14 @@ content_length = [len(post['content']) for post in reddit_data.values()]
 figure, axes = w.empty_figure()
 
 axes.hist(content_length,
-          bins=np.linspace(0, 5000, 501))
+          bins=np.linspace(0, 100, 101))
 
 plt.show()
 
 #%%
 nonempty_posts_less_than_25 = [(post['content'], post['matches'])
                                for post in reddit_data.values()
-                               if 0 < len(post['content']) < 25]
+                               if len(post['content']) < 25]
 
 posts_polarity_0 = [(post['content'], len(post['content']), post['matches'])
                     for post in reddit_data.values()
