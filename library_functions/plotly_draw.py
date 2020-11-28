@@ -30,22 +30,33 @@ def get_edge_traces(
     edges_x = []
     edges_y = []
     widths = []
+    colors = []
     names = []
     counts = []
-    max_width = 50
-    max_weight = np.max(
-        [a[2][edge_weight_attribute] for a in list(graph.edges(data=True))]
-    )
+    max_width = 20
 
     for e1, e2, data in graph.edges(data=True):
         x0, y0 = positions[e1]
         x1, y1 = positions[e2]
-        edges_x.append([x0, x1, x1 + 1, x0 + 1, x0])
-        edges_y.append([y0, y1, y1, y0, y0])
-        widths.append(math.ceil(data[edge_weight_attribute] * max_width / max_weight))
+        # edges_x.append([x0, x1, x1 + 1, x0 + 1, x0])
+        edges_x.append([x0, x1])
+        # edges_y.append([y0, y1, y1, y0, y0])
+        edges_y.append([y0, y1])
         names.append((e1, e2))
-        if "count" in edge_hover_attributes:
-            counts.append(data["count"])
+
+    if edge_weight_attribute:
+        values = [data[edge_weight_attribute] for _, _, data in graph.edges(data=True)]
+        logs = np.log(values)
+        maxlog = np.max(logs)
+        maxval = np.max(values)
+
+        alphas = (logs / maxlog) ** 2
+
+        colors = [f"rgba(40,40,40,{a:.4f})" for a in alphas]
+        widths = (logs / maxlog) * max_width
+    else:
+        widths = np.repeat(0.5, len(edges_x))
+        colors = np.repeat("rgba(40,40,40,0.05)", len(edges_x))
 
     edge_traces = []
     for i in range(len(edges_x)):
@@ -53,7 +64,7 @@ def get_edge_traces(
             trace = go.Scatter(
                 x=edges_x[i],
                 y=edges_y[i],
-                line={"width": widths[i], "color": "black"},
+                line={"width": widths[i], "color": colors[i]},
                 hoverinfo="text" if edge_hover_attributes else "none",
                 mode="lines",
                 fill="toself",
@@ -177,7 +188,9 @@ def draw_graph_plotly(
     )
 
     data = edge_traces if edges_only else edge_traces + [node_trace]
-    figure = go.Figure(
+
+    annotations = compute_annotations(graph=graph)
+    figure = go.FigureWidget(
         data=data,
         layout=go.Layout(
             autosize=False,
@@ -189,7 +202,24 @@ def draw_graph_plotly(
             yaxis={"showgrid": False, "zeroline": False, "showticklabels": False},
         ),
     )
+    figure.add_annotation(annotations)
     return figure
+
+
+def compute_annotations(graph: nx.Graph):
+    annotations = go.layout.Annotation(
+        text="Test",
+        align="left",
+        showarrow=False,
+        xref="paper",
+        yref="paper",
+        x=1.1,
+        y=0.8,
+        bordercolor="black",
+        borderwidth=1,
+    )
+
+    return annotations
 
 
 # %%

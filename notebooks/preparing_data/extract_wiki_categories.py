@@ -58,14 +58,16 @@ mw = MediaWiki()
 ct = mw.categorytree("Psychoactive drugs by mechanism of action", depth=15)
 
 #%%
-ct = ct['Psychoactive drugs by mechanism of action']
+ct = ct["Psychoactive drugs by mechanism of action"]
 
 # %%
 def build_category_mapping(category):
     def extract_categories(tree, current: Set[str]) -> Set[str]:
         for subcategory in tree["sub-categories"]:
             if subcategory not in current:
-                current.union(extract_categories(tree["sub-categories"][subcategory], current))
+                current.union(
+                    extract_categories(tree["sub-categories"][subcategory], current)
+                )
                 current.add(subcategory)
         return current
 
@@ -78,9 +80,29 @@ def build_category_mapping(category):
     }
     return results
 
-# %%
-categories_mechanism = build_category_mapping('Psychoactive drugs by mechanism of action')
-# %%
-categories_effects = build_category_mapping('Drugs by psychological effects')
 
+# %%
+categories_mechanism = build_category_mapping(
+    "Psychoactive drugs by mechanism of action"
+)
+# %%
+categories_effects = build_category_mapping("Drugs by psychological effects")
+
+# %%
+
+# Make a simple mapping between categories and substances
+all_categories = set()
+
+for category in wiki_data["categories"]:
+    all_categories = all_categories.union(set(category))
+print(f"Amount of categories: {len(all_categories)}")
+
+category_inverse_mapping = {category: [] for category in all_categories}
+
+for name, categories in zip(wiki_data["name"], wiki_data["categories"]):
+    for category in categories:
+        category_inverse_mapping[category].append(name)
+
+with open(Config.Path.all_categories_to_names_mapping, "w+") as f:
+    json.dump(category_inverse_mapping, f)
 # %%
