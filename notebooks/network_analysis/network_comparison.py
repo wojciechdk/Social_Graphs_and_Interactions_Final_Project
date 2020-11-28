@@ -21,7 +21,7 @@ g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
 g_reddit_min_3_links = lf.create_graph_reddit(min_edge_occurrences_to_link=3)
 
 # Positive sentiment
-conditions_positive = {'polarity': lambda x: x > 0.3}
+conditions_positive = {'polarity': lambda x: x > 0.13}
 g_reddit_positive = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
@@ -29,7 +29,7 @@ g_reddit_positive = lf.create_graph_reddit(
 )
 
 # Negative sentiment
-conditions_negative = {'polarity': lambda x: x < 0.3}
+conditions_negative = {'polarity': lambda x: x < 0.13}
 g_reddit_negative = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
