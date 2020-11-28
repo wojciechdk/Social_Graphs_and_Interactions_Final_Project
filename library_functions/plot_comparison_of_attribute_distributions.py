@@ -10,7 +10,8 @@ def plot_comparison_of_attribute_distributions(
         attribute_function,
         attribute_function_name,
         as_probability_distribution=False,
-        bins=100
+        bins=100,
+        show=True
 ):
     figure, axess = plt.subplots(len(graphs), 1,
                                  figsize=(12, 4 * len(graphs) + 1),
@@ -22,7 +23,7 @@ def plot_comparison_of_attribute_distributions(
 
         figure.suptitle(f'Distribution of the {attribute_parent} attribute: '
                         f'"{attribute_name}"',
-                        y=max(0.98 + 0.03 * (len(graphs) - 1), 0.995),
+                        y=min(0.98 + 0.003 * (len(graphs) - 1), 0.995),
                         size=20)
 
         w.graph.plot_distribution(
@@ -58,4 +59,7 @@ def plot_comparison_of_attribute_distributions(
         axes.yaxis.label.set_fontsize(14)
         axes.title.set_fontsize(16)
 
-    plt.show()
+    if show:
+        plt.show()
+
+    return axess
