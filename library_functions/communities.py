@@ -46,4 +46,8 @@ def assign_louvain_communities(
             except:
                 wiki_graph.nodes[node]["louvain_community_reddit"] = -1
 
-    return (reddit_graph, wiki_graph) if wiki_graph else reddit_graph
+    return (
+        (reddit_graph, reddit_partition, wiki_graph, wiki_partition)
+        if wiki_graph
+        else (reddit_graph, reddit_partition)
+    )
