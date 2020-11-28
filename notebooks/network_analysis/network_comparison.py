@@ -1,4 +1,4 @@
-#%%
+# %%
 import json
 import library_functions as lf
 import matplotlib.pyplot as plt
@@ -18,55 +18,66 @@ from pathlib import Path
 g_wiki = lf.create_graph_wiki()
 g_reddit = lf.create_graph_reddit()
 g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
-g_reddit_min_3_links = lf.create_graph_reddit(minimum_occurrences_to_link=3)
+g_reddit_min_3_links = lf.create_graph_reddit(min_edge_occurrences_to_link=3)
+
+# Positive sentiment
+conditions_positive = {'polarity': lambda x: x > 1.3}
+g_reddit_positive = lf.create_graph_reddit(
+    max_drugs_in_post=10,
+    min_edge_occurrences_to_link=3,
+    conditional_functions_dict=conditions_positive
+)
+
+# Negative sentiment
+conditions_negative = {'polarity': lambda x: x < 1.3}
+g_reddit_negative = lf.create_graph_reddit(
+    max_drugs_in_post=10,
+    min_edge_occurrences_to_link=3,
+    conditional_functions_dict=conditions_negative
+)
+
+# %% Plot distribution of values of one instance (node or edge)
+graphs = [g_reddit, g_reddit_max_10, g_reddit_min_3_links]
+graph_names = ['Reddit Raw',
+               'Max 10 drugs in post',
+               'Min 3 occurrences for link']
+
+instance = 'edge'
+instance_label = ('caffeine', 'theanine')
+attribute_name = 'polarity'
+
+w.graph.plot_distribution_of_attribute_of_1_instance(
+    graphs,
+    instance=instance,
+    instance_label=instance_label,
+    attribute_name=attribute_name,
+    graph_names=graph_names
+)
 
 
-#%% Create alternative graphs
-# Positive
-g_reddit_positive = g_reddit_max_10.copy()
+# %% Plot comparison of attribute distributions
+graphs = [g_reddit, g_reddit_max_10, g_reddit_min_3_links]
+graph_names = ['Reddit Raw',
+               'Max 10 drugs in post',
+               'Min 3 occurrences for link']
 
+figure, axess = plt.subplots(len(graphs), 1,
+                             figsize=(12, 4 * len(graphs) + 1),
+                             sharex='all',
+                             sharey='all')
 
-def edge_not_positive(edge_attributes):
-    return edge_attributes['polarity_weighted'] < 0.13
+lf.plot_comparison_of_attribute_distributions(
+    graphs,
+    graph_names=graph_names,
+    attribute_name='polarity_weighted',
+    attribute_parent='edge',
+    attribute_function=None,
+    attribute_function_name='',
+    as_probability_distribution=True,
+    bins=100
+)
 
-
-edges_not_positive =\
-    w.graph.get_edges_by_conditions(g_reddit_positive, edge_not_positive)
-g_reddit_positive.remove_edges_from(edges_not_positive)
-
-# Negative
-g_reddit_negative = g_reddit_max_10.copy()
-
-
-def edge_not_negative(edge_attributes):
-    return edge_attributes['polarity_weighted'] > 0.13
-
-
-edges_not_negative = w.graph.get_edges_by_conditions(g_reddit_negative,
-                                                     edge_not_negative)
-g_reddit_negative.remove_edges_from(edges_not_negative)
-
-
-#%% List most frequent edges
-# TODO: create graphs in different way. Check sentiment before building instead of removing edges
-
-graphs = [g_reddit_max_10, g_reddit_positive, g_reddit_negative]
-graph_names = ['Reddit', 'Reddit positive', 'Reddit negative']
-
-most_frequent_edges = dict()
-for graph, graph_name in zip(graphs, graph_names):
-    print(f'\n{graph_name}:')
-    most_frequent_edges[graph_name] = lf.most_frequent_edges(graph,
-                                                             n=10,
-                                                             printout=True)
-
-
-
-#%% Show distribution of attribute
-axes = lf.plot_distribution_of_attribute(g_reddit_max_10, 'node',
-                                         'tea', 'polarity')
-
-
+# %%
 # %% Plot degree distribution summary
 graphs_to_show = [g_reddit, g_wiki, w.graph.erdos_renyi_like(g_reddit)]
 graph_names = ['Reddit', 'Wiki', 'Random like Reddit']
@@ -94,7 +105,7 @@ w.graph.plot_in_vs_out_degree(g_wiki,
                               colormap_norm='log')
 plt.show()
 
-#%% Force Atlas plot Wiki
+# %% Force Atlas plot Wiki
 # w.graph.plot_force_atlas_2(w.graph.remove_isolates(g_wiki),
 #                            node_size='by degree',
 #                            node_color=np.array([[0, 0, 1, 0.5]]),
@@ -103,19 +114,6 @@ plt.show()
 #                            iterations=100,
 #                            outboundAttractionDistribution=True)
 # plt.show()
-
-
-# %% Degree distribution of Reddit plots
-graphs_to_show = [g_reddit, g_reddit_positive, g_reddit_negative]
-graph_names = ['Reddit', 'Reddit positive', 'Reddit negative']
-graph_colors = ['red', 'green', 'blue']
-
-w.graph.plot_degree_distribution_summary(graphs_to_show,
-                                         graph_names=graph_names,
-                                         graph_colors=graph_colors,
-                                         x_lim_lin=(-2, 100),
-                                         x_lim_log=(0.9, 1000)
-                                         )
 
 
 # %% Degree stats
@@ -151,8 +149,7 @@ gcc_wiki = gcc_wiki_dir.to_undirected()
 nx.readwrite.gpickle.write_gpickle(gcc_reddit, Config.Path.reddit_gcc)
 nx.readwrite.gpickle.write_gpickle(gcc_wiki, Config.Path.wiki_gcc)
 
-
-#%% Find Reddit posts with most subsances
+# %% Find Reddit posts with most substances
 # reddit_data = lf.load_data_reddit()
 #
 # max_matches = 0
