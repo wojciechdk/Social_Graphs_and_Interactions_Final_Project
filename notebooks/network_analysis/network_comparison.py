@@ -21,7 +21,7 @@ g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
 g_reddit_min_3_links = lf.create_graph_reddit(min_edge_occurrences_to_link=3)
 
 # Positive sentiment
-conditions_positive = {'polarity': lambda x: x > 1.3}
+conditions_positive = {'polarity': lambda x: x > 0.3}
 g_reddit_positive = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
@@ -29,21 +29,48 @@ g_reddit_positive = lf.create_graph_reddit(
 )
 
 # Negative sentiment
-conditions_negative = {'polarity': lambda x: x < 1.3}
+conditions_negative = {'polarity': lambda x: x < 0.3}
 g_reddit_negative = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
     conditional_functions_dict=conditions_negative
 )
 
+# %% Plot comparison of attribute distributions
+graphs = [g_reddit,
+          g_reddit_max_10,
+          g_reddit_min_3_links,
+          g_reddit_positive,
+          g_reddit_negative]
+
+graph_names = ['Reddit Raw',
+               'Max 10 drugs in post',
+               'Min 3 occurrences for link',
+               'Reddit positive',
+               'Reddit negative']
+
+lf.plot_comparison_of_attribute_distributions(
+    graphs,
+    graph_names=graph_names,
+    attribute_name='polarity_weighted',
+    attribute_parent='edge',
+    attribute_function=None,
+    attribute_function_name='',
+    as_probability_distribution=False,
+    bins=100
+)
+
 # %% Plot distribution of values of one instance (node or edge)
-graphs = [g_reddit, g_reddit_max_10, g_reddit_min_3_links]
+graphs = [g_reddit,
+          g_reddit_max_10,
+          g_reddit_min_3_links]
+
 graph_names = ['Reddit Raw',
                'Max 10 drugs in post',
                'Min 3 occurrences for link']
 
-instance = 'edge'
-instance_label = ('caffeine', 'theanine')
+instance = 'node'
+instance_label = 'caffeine'
 attribute_name = 'polarity'
 
 w.graph.plot_distribution_of_attribute_of_1_instance(
@@ -55,27 +82,7 @@ w.graph.plot_distribution_of_attribute_of_1_instance(
 )
 
 
-# %% Plot comparison of attribute distributions
-graphs = [g_reddit, g_reddit_max_10, g_reddit_min_3_links]
-graph_names = ['Reddit Raw',
-               'Max 10 drugs in post',
-               'Min 3 occurrences for link']
 
-figure, axess = plt.subplots(len(graphs), 1,
-                             figsize=(12, 4 * len(graphs) + 1),
-                             sharex='all',
-                             sharey='all')
-
-lf.plot_comparison_of_attribute_distributions(
-    graphs,
-    graph_names=graph_names,
-    attribute_name='polarity_weighted',
-    attribute_parent='edge',
-    attribute_function=None,
-    attribute_function_name='',
-    as_probability_distribution=True,
-    bins=100
-)
 
 # %%
 # %% Plot degree distribution summary
@@ -87,8 +94,7 @@ w.graph.plot_degree_distribution_summary(graphs_to_show,
                                          graph_names=graph_names,
                                          graph_colors=graph_colors,
                                          x_lim_lin=(-2, 100),
-                                         x_lim_log=(0.9, 1000)
-                                         )
+                                         x_lim_log=(0.9, 1000))
 
 # %% Most central nodes Wiki
 for centrality in ['degree', 'in-degree', 'out-degree', 'betweenness',
