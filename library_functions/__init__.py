@@ -10,7 +10,7 @@ from .plot_comparison_of_attribute_distributions import (
 )
 from .most_frequent_edges import most_frequent_edges
 
-from .plot_distribution_of_attribute import plot_distribution_of_attribute
+# from .plot_distribution_of_attribute import plot_distribution_of_attribute
 from .save_wiki_data import (
     save_synonym_mapping,
     save_contents,
@@ -21,3 +21,5 @@ from .save_wiki_data import (
 from .layouting import get_fa2_layout, get_circle_layout
 
 from .communities import assign_louvain_communities
+
+from .overlaps import inverse_communities_from_partition, overlap
