@@ -54,6 +54,11 @@ class Config:
         all_categories_to_names_mapping = (
             shared_data_folder / "all_categories_to_names_mapping.json"
         )
+
+        wiki_mechanism_categories = (
+            shared_data_folder / "wiki_mechanism_categories.json"
+        )
+        wiki_effect_categories = shared_data_folder / "wiki_effect_categories.json"
         # Graphs
 
         wiki_digraph = shared_data_folder / "wiki_digraph.gpickle"

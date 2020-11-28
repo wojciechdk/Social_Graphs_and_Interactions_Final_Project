@@ -55,7 +55,6 @@ psychological_effect_map = {
 # %%
 mw = MediaWiki()
 
-ct = mw.categorytree("Psychoactive drugs by mechanism of action", depth=15)
 
 #%%
 ct = ct["Psychoactive drugs by mechanism of action"]
@@ -63,12 +62,13 @@ ct = ct["Psychoactive drugs by mechanism of action"]
 # %%
 def build_category_mapping(category):
     def extract_categories(tree, current: Set[str]) -> Set[str]:
-        for subcategory in tree["sub-categories"]:
-            if subcategory not in current:
-                current.union(
-                    extract_categories(tree["sub-categories"][subcategory], current)
-                )
-                current.add(subcategory)
+        if tree:
+            for subcategory in tree["sub-categories"]:
+                if subcategory not in current:
+                    current.union(
+                        extract_categories(tree["sub-categories"][subcategory], current)
+                    )
+                    current.add(subcategory)
         return current
 
     ct = mw.categorytree(category, depth=15)
@@ -85,9 +85,21 @@ def build_category_mapping(category):
 categories_mechanism = build_category_mapping(
     "Psychoactive drugs by mechanism of action"
 )
+# Convert sets to lists to be able to save as json
+for i in categories_mechanism:
+    categories_mechanism[i] = list(categories_mechanism[i])
+
+with open(Config.Path.wiki_mechanism_categories, "w+") as f:
+    json.dump(categories_mechanism, f)
 # %%
 categories_effects = build_category_mapping("Drugs by psychological effects")
 
+# Convert sets to lists to be able to save as json
+for i in categories_effects:
+    categories_effects[i] = list(categories_effects[i])
+
+with open(Config.Path.wiki_effect_categories, "w+") as f:
+    json.dump(categories_effects, f)
 # %%
 
 # Make a simple mapping between categories and substances
