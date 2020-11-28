@@ -15,7 +15,7 @@ import importlib
 
 graph_reddit = lf.create_graph_reddit(
     max_drugs_in_post=6,
-    minimum_occurrences_to_link=2,
+    min_edge_occurrences_to_link=2,
     # alternative_path="./private_data/reddit_data_with_NER.json",
 )
 graph_wiki = lf.create_graph_wiki().to_undirected()
@@ -25,7 +25,12 @@ graph_reddit = w.graph.largest_connected_component(graph_reddit)
 # %%
 
 
-lf.assign_louvain_communities(reddit_graph=graph_reddit, wiki_graph=graph_wiki)
+(
+    reddit_graph,
+    reddit_partition,
+    wiki_graph,
+    wiki_partition,
+) = lf.assign_louvain_communities(reddit_graph=graph_reddit, wiki_graph=graph_wiki)
 
 positions_reddit = lf.get_fa2_layout(graph=graph_reddit, edge_weight_attribute="count")
 # %%
