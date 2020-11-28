@@ -1,7 +1,25 @@
 from os import name
 from typing import Collection, Dict
 import networkx as nx
-from typing import Collection
+from typing import Collection, Dict, List
+
+
+def inverse_communities_from_partition(
+    partition: Dict[str, int]
+) -> Dict[int, List[str]]:
+    communities = {i: [] for i in range(max(partition.values()) + 1)}
+
+    for node in partition:
+        communities[partition[node]].append(node)
+    return communities
+
+
+def inverse_categories(categories: Dict):
+    inverse = {}
+    for cat in categories:
+        for c in categories[cat]:
+            inverse[c] = cat
+    return inverse
 
 
 def overlap(
