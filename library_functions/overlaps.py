@@ -7,6 +7,14 @@ from typing import Collection, Dict, List
 def inverse_communities_from_partition(
     partition: Dict[str, int]
 ) -> Dict[int, List[str]]:
+    """Given a partition mapping from nodes to their community, return a mapping from communities to the nodes in that community.
+
+    Args:
+        partition (Dict[str, int]): [description]
+
+    Returns:
+        Dict[int, List[str]]: [description]
+    """
     communities = {i: [] for i in range(max(partition.values()) + 1)}
 
     for node in partition:
