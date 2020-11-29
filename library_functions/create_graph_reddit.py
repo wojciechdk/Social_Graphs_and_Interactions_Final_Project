@@ -6,6 +6,7 @@ import wojciech as w
 
 def create_graph_reddit(max_drugs_in_post=np.inf,
                         min_edge_occurrences_to_link=1,
+                        min_content_length_in_characters=0,
                         conditional_functions_dict=None,
                         alternative_path=None):
 
@@ -33,6 +34,9 @@ def create_graph_reddit(max_drugs_in_post=np.inf,
 
     # Link drugs
     for reddit_post in drug_database_reddit.values():
+        if len(reddit_post['content']) < min_content_length_in_characters:
+            continue
+
         link_drugs(g_reddit,
                    reddit_post['matches'],
                    reddit_post['polarity'],

@@ -17,14 +17,25 @@ from pathlib import Path
 # %% Create graphs
 g_wiki = lf.create_graph_wiki()
 g_reddit = lf.create_graph_reddit()
+g_reddit_post_length_limit = lf.create_graph_reddit(
+    max_drugs_in_post=10,
+    min_content_length_in_characters=25)
+
 g_reddit_max_10 = lf.create_graph_reddit(max_drugs_in_post=10)
 g_reddit_min_3_links = lf.create_graph_reddit(min_edge_occurrences_to_link=3)
+
+g_reddit_chosen = lf.create_graph_reddit(
+    max_drugs_in_post=10,
+    min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25
+)
 
 # Positive sentiment
 conditions_positive = {'polarity': lambda x: x > 0.13}
 g_reddit_positive = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25,
     conditional_functions_dict=conditions_positive
 )
 
@@ -33,23 +44,31 @@ conditions_negative = {'polarity': lambda x: x < 0.13}
 g_reddit_negative = lf.create_graph_reddit(
     max_drugs_in_post=10,
     min_edge_occurrences_to_link=3,
+    min_content_length_in_characters=25,
     conditional_functions_dict=conditions_negative
 )
 
+
 # %% Plot comparison of attribute distributions
-graphs = [g_reddit,
-          g_reddit_max_10,
-          g_reddit_min_3_links,
-          g_reddit_positive,
-          g_reddit_negative]
+graphs = [
+    g_reddit,
+    g_reddit_max_10,
+    g_reddit_min_3_links,
+    g_reddit_post_length_limit,
+    # g_reddit_positive,
+    # g_reddit_negative
+]
 
-graph_names = ['Reddit Raw',
-               'Max 10 drugs in post',
-               'Min 3 occurrences for link',
-               'Reddit positive',
-               'Reddit negative']
+graph_names = [
+    'Reddit Raw',
+    'Max 10 drugs in post',
+    'Min 3 occurrences for link',
+    'Only posts with 25+ characters'
+    # 'Reddit positive',
+    # 'Reddit negative'
+]
 
-lf.plot_comparison_of_attribute_distributions(
+axess = lf.plot_comparison_of_attribute_distributions(
     graphs,
     graph_names=graph_names,
     attribute_name='polarity_weighted',
@@ -57,17 +76,27 @@ lf.plot_comparison_of_attribute_distributions(
     attribute_function=None,
     attribute_function_name='',
     as_probability_distribution=False,
-    bins=100
+    bins=np.linspace(-1, 1, 201),
+    show=False
 )
 
-# %% Plot distribution of values of one instance (node or edge)
-graphs = [g_reddit,
-          g_reddit_max_10,
-          g_reddit_min_3_links]
+axess[0].set_xlim((-0.5, 0.5))
+plt.show()
 
-graph_names = ['Reddit Raw',
-               'Max 10 drugs in post',
-               'Min 3 occurrences for link']
+# %% Plot distribution of values of one instance (node or edge)
+graphs = [
+    g_reddit,
+    g_reddit_max_10,
+    g_reddit_min_3_links,
+    g_reddit_post_length_limit
+]
+
+graph_names = [
+    'Reddit Raw',
+    'Max 10 drugs in post',
+    'Min 3 occurrences for link',
+    'Only posts with 25+ characters'
+]
 
 instance = 'node'
 instance_label = 'caffeine'
@@ -81,10 +110,6 @@ w.graph.plot_distribution_of_attribute_of_1_instance(
     graph_names=graph_names
 )
 
-
-
-
-# %%
 # %% Plot degree distribution summary
 graphs_to_show = [g_reddit, g_wiki, w.graph.erdos_renyi_like(g_reddit)]
 graph_names = ['Reddit', 'Wiki', 'Random like Reddit']
