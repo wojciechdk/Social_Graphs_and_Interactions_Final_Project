@@ -18,6 +18,6 @@ from .save_wiki_data import (
 )
 from .layouting import get_fa2_layout, get_circle_layout
 
-from .communities import assign_louvain_communities
+from .communities import assign_louvain_communities, get_infomap_communities
 
 from .overlaps import inverse_communities_from_partition, overlap
