@@ -25,3 +25,13 @@ from .communities import (
 )
 
 from .overlaps import inverse_communities_from_partition, overlap
+
+from .text_analysis import (
+    assign_lemmas,
+    assign_tfs,
+    assign_idfs,
+    assign_tf_idfs,
+    wordcloud_from_node,
+    rank_dict,
+    wordcloud_from_nodes,
+)
