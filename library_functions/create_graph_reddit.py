@@ -1,7 +1,11 @@
 from typing import List
 
 from tqdm.auto import tqdm
-import library_functions as lf
+
+try:
+    import library_functions as lf
+except ModuleNotFoundError:
+    import project.library_functions as lf
 import networkx as nx
 import numpy as np
 import wojciech as w
@@ -52,6 +56,8 @@ def create_graph_reddit(
             reddit_post["title"] + " " + reddit_post["content"],
             max_drugs_in_post,
             conditional_functions_dict,
+            include_link_contents=include_link_contents,
+            include_node_contents=include_node_contents,
         )
 
     # Remove the edges that occur fewer times than the threshold
