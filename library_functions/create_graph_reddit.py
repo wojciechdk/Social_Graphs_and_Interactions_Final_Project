@@ -22,6 +22,7 @@ def create_graph_reddit(
     include_link_contents=False,
 ):
 
+    # Make sure that conditional_functions_dict is a dict
     if conditional_functions_dict is None:
         conditional_functions_dict = dict()
 
@@ -34,15 +35,16 @@ def create_graph_reddit(
     g_reddit = nx.Graph()
     g_reddit.add_nodes_from(substance_names)
 
-    # Initialize mention counts and assign categories from Wikipedia
-    # to nodes (drugs)
+    # Assign node properties. Note thad we use drug names as nodes, and that
+    # the drug names are taken from Wikipedia
     for index_drug, drug in enumerate(wiki_data["name"]):
         if drug in g_reddit.nodes:
             g_reddit.nodes[drug]["count"] = 0
             g_reddit.nodes[drug]["polarity"] = []
             g_reddit.nodes[drug]["subjectivity"] = []
             g_reddit.nodes[drug]["contents"] = []
-            g_reddit.nodes[drug]["categories"] = wiki_data["categories"][index_drug]
+            g_reddit.nodes[drug]["categories"] =\
+                wiki_data["categories"][index_drug]
 
     # Link drugs
     for reddit_post in tqdm(list(drug_database_reddit.values())):
