@@ -35,3 +35,19 @@ from .text_analysis import (
     rank_dict,
     wordcloud_from_nodes,
 )
+
+
+from .get_from_wiki import (
+    get_page_from_name,
+    get_random_page,
+    get_page_lengths,
+    get_wiki_page_names,
+    get_wiki_synonyms_mapping,
+    get_number_of_links,
+    get_number_of_categories,
+    get_number_of_synonyms,
+    get_name_by,
+    get_top,
+)
+
+from .get_from_reddit import get_post_lengths, get_n_of_matches_per_post, get_top_posts
