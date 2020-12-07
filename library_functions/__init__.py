@@ -36,6 +36,7 @@ from .text_analysis import (
     wordcloud_from_node,
     rank_dict,
     wordcloud_from_nodes,
+    wordcloud_from_link,
 )
 
 
