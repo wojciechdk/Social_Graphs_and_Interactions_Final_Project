@@ -36,6 +36,7 @@ from .text_analysis import (
     wordcloud_from_link,
 )
 
+from .plot_basic_data import get_wiki_plots_figure, get_reddit_plots_figure
 
 from .get_from_wiki import (
     get_page_from_name,
