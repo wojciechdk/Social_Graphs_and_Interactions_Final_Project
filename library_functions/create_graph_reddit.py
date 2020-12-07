@@ -208,7 +208,8 @@ def link_drugs(
 
 def weigh_attribute(attribute_to_weigh, all_edge_attributes):
     value_attribute = np.array(all_edge_attributes[attribute_to_weigh])
-    number_of_drugs_in_post = np.array(all_edge_attributes["number_of_drugs_in_post"])
+    number_of_drugs_in_post = \
+        np.array(all_edge_attributes["number_of_drugs_in_post"])
     weights = 1 / (number_of_drugs_in_post - 1)
 
     number_of_posts_containing_link = all_edge_attributes["count"]
