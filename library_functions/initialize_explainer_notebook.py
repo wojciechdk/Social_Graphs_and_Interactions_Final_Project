@@ -9,6 +9,7 @@ try:
 except ModuleNotFoundError:
     from project.library_functions.config import Config
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import warnings

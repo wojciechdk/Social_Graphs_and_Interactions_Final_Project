@@ -92,7 +92,8 @@ def create_graph_reddit(
             g_reddit.nodes[drug]["polarity"] = []
             g_reddit.nodes[drug]["subjectivity"] = []
             g_reddit.nodes[drug]["contents"] = []
-            g_reddit.nodes[drug]["categories"] = wiki_data["categories"][index_drug]
+            g_reddit.nodes[drug]["categories"] =\
+                wiki_data["categories"][index_drug]
 
     # Link drugs that appear in the same post
     for reddit_post in tqdm(list(drug_database_reddit.values()),
