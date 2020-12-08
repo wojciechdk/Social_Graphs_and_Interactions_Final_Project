@@ -25,7 +25,7 @@ def most_frequent_edges(graphs: nx.Graph,
             edges_count_sorted = \
                 edges_count_sorted[:min(len(edges_count_sorted), n)]
 
-        edges_sorted['graph_name'] = edges_count_sorted
+        edges_sorted[graph_name] = edges_count_sorted
 
     if as_pandas:
         column_names = list(edges_sorted.keys())
