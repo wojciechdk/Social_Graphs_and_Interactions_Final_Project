@@ -16,13 +16,16 @@ import pandas as pd
 import warnings
 import wojciech as w
 
+from fa2 import ForceAtlas2
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import Markdown, display
 
 
 # Define a function that will print a markdown text.
 def printmd(string):
-    display(Markdown(string))
+    # display(Markdown(string))
+    display({'text/markdown': string},
+            raw=True)
 
 
 # Disable warnings
