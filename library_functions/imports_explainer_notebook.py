@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 import warnings
+import random
 import wojciech as w
 from tqdm.auto import tqdm
 

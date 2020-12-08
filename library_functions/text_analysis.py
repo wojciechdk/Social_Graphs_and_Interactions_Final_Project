@@ -113,7 +113,7 @@ def wordcloud_from_node(graph: nx.Graph, node: str, color_func=None):
     return wc
 
 
-def wordcloud_from_link(graph: nx.Graph, n1, n2):
+def wordcloud_from_link(graph: nx.Graph, n1, n2, color_func):
     edgetext = " ".join(graph.edges[(n1, n2)]["contents"])
     lemmas = get_lemmas(edgetext)
     tfs = w.nlp.term_frequency(terms=None, document=lemmas, type="frequency")
@@ -132,6 +132,7 @@ def wordcloud_from_link(graph: nx.Graph, n1, n2):
         width=900,
         height=900,
         collocations=False,
+        color_func=color_func,
     ).generate_from_frequencies(tfidfs)
     return wc
 
