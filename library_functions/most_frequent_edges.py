@@ -31,8 +31,22 @@ def most_frequent_edges(graphs: nx.Graph,
         column_names = list(edges_sorted.keys())
         max_length = max([len(value) for value in edges_sorted.values()])
         index = np.arange(max_length) + 1
-        data = np.empty((max_length, len(edges_sorted)))
-        edges_sorted_pandas = pd.DataFrame(data, columns=column_names)
+
+        edges_sorted_for_pandas = dict()
+        for graph_name, edges_count_sorted in edges_sorted.items():
+            edge_label = np.empty(max_length, dtype=object)
+            edge_count = np.empty(max_length, dtype=object)
+
+            edge_label[:len(edges_count_sorted)] =\
+                list(map(itemgetter(0), edges_count_sorted))
+
+            edge_count[:len(edges_count_sorted)] = \
+                list(map(itemgetter(1), edges_count_sorted))
+
+            edges_sorted_for_pandas[(graph_name, 'Edge')] = edge_label
+            edges_sorted_for_pandas[(graph_name, 'Count')] = edge_count
+
+        edges_sorted_pandas = pd.DataFrame.from_dict(edges_sorted_for_pandas)
         edges_sorted_pandas.set_index(pd.Index(index), inplace=True)
 
     if printout:
