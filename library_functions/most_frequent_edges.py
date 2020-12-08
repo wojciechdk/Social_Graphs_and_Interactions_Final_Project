@@ -33,7 +33,7 @@ def most_frequent_edges(graphs: nx.Graph,
         index = np.arange(max_length) + 1
         data = np.empty((max_length, len(edges_sorted)))
         edges_sorted_pandas = pd.DataFrame(data, columns=column_names)
-        edges_sorted_pandas.set_index(pd.Index(index))
+        edges_sorted_pandas.set_index(pd.Index(index), inplace=True)
 
     if printout:
         if as_pandas:
