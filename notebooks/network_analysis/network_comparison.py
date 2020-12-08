@@ -128,6 +128,7 @@ for graph, graph_name in zip(graphs, graph_names):
     print(f"\n{graph_name}:")
     degree_stats[graph_name] = w.graph.degree_statistics(graph, printout=True)
 
+
 # %% Most central nodes in different Reddit Graphs
 graphs = [g_reddit, g_reddit_positive, g_reddit_negative]
 graph_names = ["Reddit", "Reddit Positive", "Reddit Negative"]
