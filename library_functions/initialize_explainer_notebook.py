@@ -23,9 +23,7 @@ from IPython.display import Markdown, display
 
 # Define a function that will print a markdown text.
 def printmd(string):
-    # display(Markdown(string))
-    display({'text/markdown': string},
-            raw=True)
+    display(Markdown(string))
 
 
 # Disable warnings
