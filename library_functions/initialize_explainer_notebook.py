@@ -1,22 +1,7 @@
 # Imports
-try:
-    import library_functions as lf
-except ModuleNotFoundError:
-    import project.library_functions as lf
-
-try:
-    from library_functions.config import Config
-except ModuleNotFoundError:
-    from project.library_functions.config import Config
-
-import matplotlib.pyplot as plt
-import networkx as nx
-import numpy as np
 import pandas as pd
 import warnings
-import wojciech as w
 
-from fa2 import ForceAtlas2
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import Markdown, display
 

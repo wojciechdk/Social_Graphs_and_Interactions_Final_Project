@@ -22,7 +22,8 @@ from .communities import (
     assign_root_categories,
 )
 
-from .overlaps import inverse_communities_from_partition, overlap, draw_overlaps_plotly
+from .overlaps import inverse_communities_from_partition, overlap, \
+    draw_overlaps_plotly
 
 from .flatten_list import flatten
 
@@ -54,6 +55,7 @@ from .get_from_wiki import (
     get_root_category_mapping,
 )
 
-from .get_from_reddit import get_post_lengths, get_n_of_matches_per_post, get_top_posts
+from .get_from_reddit import get_post_lengths, get_n_of_matches_per_post, \
+    get_top_posts
 
 from .plotly_draw import draw_graph_plotly
