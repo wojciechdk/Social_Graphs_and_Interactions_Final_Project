@@ -11,7 +11,7 @@ class Config:
         private_data_folder = project_root / "private_data"
 
         # Shared data:
-        shared_data_folder = project_root / "shared_data"
+        shared_data_folder = project_root / "data"
 
         dietary_supplements_category_tree_clean = (
             shared_data_folder / "dietary_supplements_category_tree_clean.json"
