@@ -7,7 +7,6 @@ nltk==3.5
 spacy==2.3.2
 textblob==0.15.3
 tqdm==4.50.0
-fa2==0.3.5
 powerlaw==1.4.6
 wordcloud==1.8.0
 plotly==4.12.0
@@ -17,3 +16,6 @@ python_louvain==0.14
 community==1.0.0b1
 ipython==7.19.0
 project==20
+
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.3.1/en_core_web_sm-2.3.1.tar.gz
+-e git://github.com/bhargavchippada/forceatlas2.git#egg=fa2
